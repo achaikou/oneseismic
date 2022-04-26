@@ -2,14 +2,40 @@ name: CI-Azure
 
 on:
   workflow_dispatch:
-  schedule:
+  #schedule:
     # Run at 15.52 UTC every day
-    - cron: '52 15 * * *'
+  #  - cron: '52 15 * * *'
 
 jobs:
-  azure_tests:
-    # Note: as job uses just one set of resources, so concurrent PRs and merges might cause trouble
-    # due to currently low number of PRs this is acceptable for now
+  before_performance_tests:
+    name: Before All Performance tests on Azure
+    runs-on: ubuntu-latest
+    environment: Test
+
+    env:
+      ENVIRONMENT: test
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set infrastructure parameters
+        run: |
+          echo "CONTAINER_REGISTRY=${{ secrets.SETUP_PREFIX }}0containerRegistry.azurecr.io" >> $GITHUB_ENV
+
+      - name: Login to Docker Registry with Service Principal
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.CONTAINER_REGISTRY }}
+          username: ${{ secrets.AZURE_CLIENT_ID }}
+          password: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      - name: Build and push performance image to Docker
+        run: |
+          tag=${{ env.CONTAINER_REGISTRY }}/playground/performance
+          docker build -f tests/performance/Dockerfile -t $tag .
+          docker push $tag
+
+  performance_tests:
+    # Note: job uses default resources. Setup from the main resource is used
     #
     # Service Principal should have access to Resource group and "push" privileges to the container registry
     #
@@ -21,79 +47,35 @@ jobs:
     # AZURE_CREDENTIALS : {"clientId": "<>","clientSecret": "<>","subscriptionId": "<>","tenantId": "<>"}
     # STORAGE_ACCOUNT_KEY : key used to access storage
     # SIGN_KEY : string used for secure exchange of information between services
-    name: Integration tests on Azure
+    name: Performance tests on Azure
     runs-on: ubuntu-latest
     environment: Test
+    needs: [before_performance_tests]
+
     env:
       ENVIRONMENT: test
-      REVISION_ID: ${{ github.sha }} # or "latest"
-      DEPLOYMENT_NAME: ${{ github.sha }}
+    strategy:
+      max-parallel: 1
+      matrix:
+        include:
+          - ilines: 10
+            xlines: 9
+            samples: 8
+            duration: "10s"
+            vus: 1
+
     steps:
       - uses: actions/checkout@v2
-
-      - name: Set missing docker parameters
-        run: |
-          echo "CONTAINER_REGISTRY=${{ secrets.SETUP_PREFIX }}0containerRegistry.azurecr.io" >> $GITHUB_ENV
-
-      - name: Login to Docker Registry with Service Principal
-        uses: docker/login-action@v1
-        with:
-          registry: ${{ env.CONTAINER_REGISTRY }}
-          username: ${{ secrets.AZURE_CLIENT_ID }}
-          password: ${{ secrets.AZURE_CLIENT_SECRET }}
-
-      - name: Build and push server code with Docker
-        run: |
-          tag=${{ env.CONTAINER_REGISTRY }}/apps/oneseismic:$REVISION_ID
-          docker build -t $tag .
-          docker push $tag
-
       - name: Login to Azure with Service Principal
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy server code
-        uses: azure/arm-deploy@v1
+      - name: Run tests
+        uses: './.github/actions/run_performance_test'
         with:
-          deploymentName: ${{ env.DEPLOYMENT_NAME }}
-          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
-          template: deploy/main.bicep
-          parameters: environment=${{ env.ENVIRONMENT }} setupPrefix=${{ secrets.SETUP_PREFIX }} revisionId=${{ env.REVISION_ID }} signKey=${{ secrets.SIGN_KEY }}
-
-      - name: Set missing test parameters
-        run: |
-          serverURL=$(az deployment group show \
-            -g ${{ secrets.RESOURCE_GROUP }} \
-            -n ${{ env.DEPLOYMENT_NAME }} \
-            --query properties.outputs.serverURL.value \
-            -o tsv
-          )
-          echo "SERVER_URL=$serverURL" >> $GITHUB_ENV
-          echo "STORAGE_URL=https://${{ secrets.SETUP_PREFIX }}0storage.blob.core.windows.net" >> $GITHUB_ENV
-
-      - name: Run azure tests
-        env:
-          SERVER_URL: ${{ env.SERVER_URL }}
-          STORAGE_LOCATION: ${{ env.STORAGE_URL }}
-          AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
-        run: |
-          tag=local/test/oneseismic
-          docker build -f tests/Dockerfile --target cloudtest -t $tag .
-          docker run \
-            -e AZURE_STORAGE_ACCOUNT_KEY \
-            -e STORAGE_LOCATION \
-            -e SERVER_URL \
-            $tag
-
-  notify:
-    name: Report on failure
-    needs: [azure_tests]
-    runs-on: ubuntu-latest
-    if: failure() && github.event_name == 'schedule'
-    steps:
-    - name: Send GitHub Action trigger data to Slack workflow
-      id: slack
-      uses: slackapi/slack-github-action@v1.18.0
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_AZURE_WEBHOOK_URL }}
+          ilines_number: ${{ matrix.ilines }}
+          xlines_number: ${{ matrix.xlines }}
+          samples_number: ${{ matrix.samples }}
+          vus: ${{ matrix.vus }}
+          duration: ${{ matrix.duration }}

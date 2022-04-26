@@ -1,17 +1,16 @@
 import os
 import subprocess
-import json
 from urllib.request import urlopen
 from urllib.parse import urljoin
 import pytest
-import tempfile
 import numpy as np
 from oneseismic import simple
 from urllib.parse import urlsplit
 import segyio
 import azure
-import datetime
 from data.create import *
+from data.upload import upload, scan
+from data.azure import upload_container, storage_account_name, generate_account_signature, generate_container_signature
 
 # required
 SERVER_URL = os.getenv("SERVER_URL")
@@ -41,39 +40,18 @@ def assert_environment():
             capture_output=True, check=True)
         assert UPLOAD_WITH_CLIENT_VERSION in oneseismic_version.stdout
 
-
-def scan(path):
-    scan = subprocess.run([UPLOAD_WITH_PYTHON, "-m", "oneseismic",
-                          "scan", path], encoding="utf-8", capture_output=True,
-                          check=True)
-    return json.loads(scan.stdout)
-
-
-def upload(path, storage_location=STORAGE_LOCATION, scan_meta=None):
-    if not scan_meta:
-        scan_meta = scan(path)
-    scan_insights = tempfile.mktemp('scan_insights.json')
-    with open(scan_insights, "w") as f:
-        f.write(json.dumps(scan_meta))
-
-    subprocess.run([UPLOAD_WITH_PYTHON, "-m", "oneseismic", "upload",
-                   scan_insights, path, storage_location], encoding="utf-8",
-                   capture_output=True, check=True)
-
-    return scan_meta["guid"]
-
 @pytest.fixture
 def cube_guid(tmpdir_factory):
     custom = str(tmpdir_factory.mktemp('files').join('custom.sgy'))
     create_custom(custom)
-    guid = scan(custom)["guid"]
+    guid = scan(UPLOAD_WITH_PYTHON, custom)["guid"]
     # no file reupload must happen, so safeguard
     try:
         path = urljoin(BLOB_URL, guid)
         urlopen(path)
     except IOError as e:
         print('File '+path+' is not in the blob yet: ' + str(e) + '. Uploading')
-        uploaded_guid = upload(custom)
+        uploaded_guid = upload(UPLOAD_WITH_PYTHON, custom, STORAGE_LOCATION)
         assert guid == uploaded_guid
     yield guid
 
@@ -84,7 +62,7 @@ def test_upload(tmpdir):
     # random number assures random guid
     create_random(path)
 
-    guid = upload(path)
+    guid = upload(UPLOAD_WITH_PYTHON, path, STORAGE_LOCATION)
     client = simple.simple_client(SERVER_URL)
     res = client.sliceByIndex(guid, dim=0, index=0)().numpy()
     np.testing.assert_array_equal(res[0], np.array([1.25, 1.5]))
@@ -122,41 +100,6 @@ def test_curtain(cube_guid):
     np.testing.assert_array_equal(res_lineno, res_utm)
 
 
-def sign_azure_request(
-    account_name=urlsplit(STORAGE_LOCATION).netloc.split('.')[0],
-    container_name=None,
-    account_key=AZURE_STORAGE_ACCOUNT_KEY,
-    resource_types=azure.storage.blob.ResourceTypes(
-        container=True, object=True),
-    permission=None,
-    expiry=None,
-):
-    if not expiry:
-        expiry = datetime.datetime.utcnow() + datetime.timedelta(seconds=30)
-    if not permission:
-        if container_name:
-            permission = azure.storage.blob.ContainerSasPermissions(
-                read=True, list=True)
-        else:
-            permission = azure.storage.blob.AccountSasPermissions(
-                read=True, write=True, list=True)
-
-    if container_name:
-        return azure.storage.blob.generate_account_sas(
-            account_name=account_name,
-            account_key=account_key,
-            resource_types=resource_types,
-            permission=permission,
-            expiry=expiry)
-    else:
-        return azure.storage.blob.generate_account_sas(
-            account_name=account_name,
-            account_key=account_key,
-            resource_types=resource_types,
-            permission=permission,
-            expiry=expiry)
-
-
 @pytest.mark.parametrize('token', [
     (""),
     ("bad_token"),
@@ -176,7 +119,7 @@ def test_upload_fails_with_bad_credentials(token, tmpdir):
     segyio.tools.from_array(path, data)
 
     with pytest.raises(Exception) as exc:
-        upload(path, storage_location=STORAGE_LOCATION+"?"+token)
+        upload(UPLOAD_WITH_PYTHON, path, storage_location=STORAGE_LOCATION+"?"+token)
     assert "Server failed to authenticate the request" in str(exc.value.stderr)
 
     client = simple.simple_client(SERVER_URL)
@@ -192,7 +135,7 @@ def azure_upload():
     def create_file(path, data):
         nonlocal guid
         segyio.tools.from_array(path, data)
-        scan_meta = scan(path)
+        scan_meta = scan(UPLOAD_WITH_PYTHON, path)
         guid = scan_meta["guid"]
 
         return scan_meta
@@ -200,7 +143,7 @@ def azure_upload():
     yield create_file
 
     # random data, delete
-    token = sign_azure_request(
+    token = generate_account_signature(storage_account_name(STORAGE_LOCATION), AZURE_STORAGE_ACCOUNT_KEY,
         permission=azure.storage.blob.AccountSasPermissions(delete=True))
     container_client = azure.storage.blob.ContainerClient(
         STORAGE_LOCATION, guid, token)
@@ -217,13 +160,10 @@ def test_azure_flow(tmpdir, azure_upload):
         ], dtype=np.float32)
 
     scan_meta = azure_upload(path, data)
-    upload_token = sign_azure_request()
-    upload(path, storage_location=STORAGE_LOCATION +
-           "?"+upload_token, scan_meta=scan_meta)
+    guid = upload_container(UPLOAD_WITH_PYTHON, path, STORAGE_LOCATION, AZURE_STORAGE_ACCOUNT_KEY, scan_meta=scan_meta)
 
-    guid = scan_meta["guid"]
     client = simple.simple_client(SERVER_URL)
-    token = sign_azure_request(container_name=guid)
+    token = generate_container_signature(storage_account_name(STORAGE_LOCATION), guid, AZURE_STORAGE_ACCOUNT_KEY)
     res = client.sliceByIndex(guid, dim=0, index=0)(sas=token).numpy()
     np.testing.assert_array_equal(res, data)
 
@@ -244,11 +184,11 @@ def test_azure_reupload_forbidden(tmpdir, azure_upload):
         ], dtype=np.float32)
 
     scan_meta = azure_upload(path, data)
-    upload_token = sign_azure_request()
-    upload(path, storage_location=STORAGE_LOCATION +
+    upload_token = generate_account_signature(storage_account_name(STORAGE_LOCATION), AZURE_STORAGE_ACCOUNT_KEY)
+    upload(UPLOAD_WITH_PYTHON, path, storage_location=STORAGE_LOCATION +
            "?"+upload_token, scan_meta=scan_meta)
     with pytest.raises(Exception) as exc:
-        upload(path, storage_location=STORAGE_LOCATION +
+        upload(UPLOAD_WITH_PYTHON, path, storage_location=STORAGE_LOCATION +
                "?"+upload_token, scan_meta=scan_meta)
     assert "The specified blob already exists" in str(exc.value.stderr)
 

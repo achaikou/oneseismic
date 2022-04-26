@@ -127,7 +127,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   sku: {
     name: storageSKU[environment]
   }
-  kind: 'BlobStorage'
+  kind: 'StorageV2'
   properties: {
     accessTier: storageAccessTier[environment]
   }

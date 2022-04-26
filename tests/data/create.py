@@ -2,6 +2,7 @@ import segyio
 import numpy as np
 import random
 import sys
+import os
 
 def create_custom(path):
     """ Create file with simple constant data.
@@ -68,9 +69,41 @@ def create_random(path):
         ], dtype=np.float32)
     segyio.tools.from_array(path, data)
 
+def create_dimensional(path, ilines_number = 3, xlines_number = 3, samples_number = 4):
+    """
+    File with random data but defined dimensions (env variables)
+    """
+    # FILE_PATH = os.getenv("FILE_PATH", path)
+    # SAMPLES_NUMBER = os.getenv("SAMPLES_NUMBER", 3)
+    # ILINES_NUMBER = os.getenv("ILINES_NUMBER", 3)
+    # XLINES_NUMBER = os.getenv("XLINES_NUMBER", 4)
+
+    spec = segyio.spec()
+
+    spec.sorting = 2
+    spec.format = 1
+    spec.ilines = range(int(ilines_number))
+    spec.xlines = range(int(xlines_number))
+    spec.samples = range(int(samples_number))
+
+    print("Creating file with dimensions {}:{}:{}".format(
+        ilines_number, xlines_number, samples_number))
+
+    with segyio.create(path, spec) as f:
+        tr = 0
+        for il in spec.ilines:
+            for xl in spec.xlines:
+                f.header[tr] = {
+                    segyio.su.iline: il,
+                    segyio.su.xline: xl,
+                }
+                f.trace[tr] = np.random.uniform(low=20, high=30, size=(len(spec.samples)))
+                tr += 1
+
+        f.bin.update(tsort=segyio.TraceSortingFormat.INLINE_SORTING)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    if len(sys.argv) < 3:
         raise ValueError("Expected two arguments: structure and file path")
     structure = sys.argv[1]
     path = sys.argv[2]
@@ -78,5 +111,7 @@ if __name__ == "__main__":
         create_custom(path)
     elif structure == "random":
         create_random(path)
+    elif structure == "dimensional":
+        create_dimensional(path, sys.argv[3:])
     else:
         raise ValueError("Unknown file structure")
