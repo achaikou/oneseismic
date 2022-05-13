@@ -1,7 +1,7 @@
 import os
 import sys
 import subprocess
-from data.cloud import generate_container_signature, storage_account_name
+from ..data.cloud import generate_container_signature, storage_account_name
 
 def runPerformanceTests(vus, duration):
     account_name = storage_account_name(os.getenv("STORAGE_LOCATION"))
