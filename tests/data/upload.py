@@ -11,7 +11,7 @@ def scan(scan_with_python, path):
 
 def upload(upload_with_python, path, storage_location, scan_meta=None):
     if not scan_meta:
-        scan_meta = scan(path)
+        scan_meta = scan(upload_with_python, path)
     scan_insights = tempfile.mktemp('scan_insights.json')
     with open(scan_insights, "w") as f:
         f.write(json.dumps(scan_meta))
