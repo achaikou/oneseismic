@@ -117,7 +117,7 @@ jobs:
         run: |
           tag=performance
           docker build -f tests/performance/Dockerfile -t $tag .
-            docker run \
+          docker run \
             -e AZURE_STORAGE_ACCOUNT_KEY \
             -e STORAGE_LOCATION \
             -e SERVER_URL \
