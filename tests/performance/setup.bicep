@@ -64,7 +64,7 @@ module createFile 'job.bicep' = {
       xlinesNumber
       samplesNumber
       ';'
-      'echo ${random}'
+      'echo this is random ${random}'
     ]
     mountPath: mountPath
     // ilinesNumber: ilinesNumber
@@ -95,7 +95,7 @@ module uploadFile 'job.bicep' = {
       'upload_container'
       filePath
       ';'
-      'echo ${random}'
+      'echo this is random ${random}'
     ]
     mountPath: mountPath
   }
