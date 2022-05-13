@@ -22,8 +22,7 @@ def generate_account_signature(
         permission = blob.AccountSasPermissions(
             read=True, write=True, list=True)
     if not resource_types:
-        resource_types=blob.ResourceTypes(
-            container=True, object=True),
+        resource_types = blob.ResourceTypes(container=True, object=True)
 
     return blob.generate_account_sas(
         account_name=account_name,
@@ -64,13 +63,13 @@ def storage_account_name(storage_url):
     return urlsplit(storage_url).netloc.split('.')[0]
 
 
-def upload_container(upload_with_python, filepath, storage_url, storage_account_key, scan_meta=None):
+def upload_container(upload_with_python, filepath, storage_url, storage_account_key):
     """
     Upload file to storage url
     """
     upload_token = generate_account_signature(storage_account_name(storage_url), storage_account_key)
     storage_location = storage_url + "?" +upload_token
-    return upload(upload_with_python, filepath, storage_location=storage_location, scan_meta=scan_meta)
+    return upload(upload_with_python, filepath, storage_location=storage_location)
 
 
 def delete_container(guid, storage_url, storage_account_key):

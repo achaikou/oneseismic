@@ -16,8 +16,12 @@ def upload(upload_with_python, path, storage_location, scan_meta=None):
     with open(scan_insights, "w") as f:
         f.write(json.dumps(scan_meta))
 
-    subprocess.run([upload_with_python, "-m", "oneseismic", "upload",
+    res = subprocess.run([upload_with_python, "-m", "oneseismic", "upload",
                    scan_insights, path, storage_location], encoding="utf-8",
                    capture_output=True, check=True)
+    if res.returncode:
+        print(res.stderr)
+        print(res.stdout)
+    res.check_returncode()
 
     return scan_meta["guid"]
