@@ -27,6 +27,9 @@ param fileShareName string = 'performanceshare'
 // @description('Data creation only: Number of xlines')
 // param xlinesNumber string = '5'
 
+@description('Random value which will hopefully make containers to restart every time.')
+param random string
+
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
@@ -81,6 +84,10 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
             //   name: 'XLINES_NUMBER'
             //   value: xlinesNumber
             // }
+            {
+              name: 'UNUSED_RANDOM'
+              value: random
+            }
           ]
           image: image
           command: command

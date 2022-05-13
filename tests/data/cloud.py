@@ -1,5 +1,5 @@
 import sys
-import azure
+from azure.storage import blob
 import datetime
 from urllib.parse import urlsplit
 import os
@@ -19,13 +19,13 @@ def generate_account_signature(
     if not expiry:
         expiry = datetime.datetime.utcnow() + datetime.timedelta(seconds=30)
     if not permission:
-        permission = azure.storage.blob.AccountSasPermissions(
+        permission = blob.AccountSasPermissions(
             read=True, write=True, list=True)
     if not resource_types:
-        resource_types=azure.storage.blob.ResourceTypes(
+        resource_types=blob.ResourceTypes(
             container=True, object=True),
 
-    return azure.storage.blob.generate_account_sas(
+    return blob.generate_account_sas(
         account_name=account_name,
         account_key=account_key,
         resource_types=resource_types,
@@ -46,10 +46,10 @@ def generate_container_signature(
     if not expiry:
         expiry = datetime.datetime.utcnow() + datetime.timedelta(seconds=30)
     if not permission:
-        permission = azure.storage.blob.ContainerSasPermissions(
+        permission = blob.ContainerSasPermissions(
             read=True, list=True)
 
-    return azure.storage.blob.generate_container_sas(
+    return blob.generate_container_sas(
         account_name=account_name,
         container_name=container_name,
         account_key=account_key,
@@ -74,8 +74,8 @@ def upload_container(upload_with_python, filepath, storage_url, storage_account_
 
 
 def delete_container(guid, storage_url, storage_account_key):
-    token = generate_account_signature(storage_account_name(storage_url), storage_account_key, permission=azure.storage.blob.AccountSasPermissions(delete=True))
-    container_client = azure.storage.blob.ContainerClient(
+    token = generate_account_signature(storage_account_name(storage_url), storage_account_key, permission=blob.AccountSasPermissions(delete=True))
+    container_client = blob.ContainerClient(
         storage_url, guid, token)
     container_client.delete_container()
 

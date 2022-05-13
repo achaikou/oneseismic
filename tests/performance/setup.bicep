@@ -1,6 +1,9 @@
 @description('Setup ID: a unique prefix for resource names.')
 param setupPrefix string
 
+@description('Random value which will hopefully make containers to restart every time.')
+param random string
+
 @description('Data creation only: Number of ilines')
 param ilinesNumber string
 
@@ -66,6 +69,7 @@ module createFile 'job.bicep' = {
     // xlinesNumber: xlinesNumber
     // samplesNumber: samplesNumber
     // sourceFileName: fileName
+    random: random
     location: location
     containerRegistryResourceName: containerRegistryResourceName
     storageResourceName: storageResourceName
@@ -91,6 +95,7 @@ module uploadFile 'job.bicep' = {
       filePath
     ]
     mountPath: mountPath
+    random: random
   }
   dependsOn: [
     createFile
