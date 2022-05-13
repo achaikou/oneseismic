@@ -87,7 +87,7 @@ jobs:
           deploymentName: performanceTests-setup
           resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
           template: tests/performance/setup.bicep
-          parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM }}  ilinesNumber=${{ matrix.ilines }} xlinesNumber=${{ matrix.xlines }} samplesNumber=${{ matrix.samples }}
+          parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }}  ilinesNumber=${{ matrix.ilines }} xlinesNumber=${{ matrix.xlines }} samplesNumber=${{ matrix.samples }}
 
       - name: Print create logs
         run: |
