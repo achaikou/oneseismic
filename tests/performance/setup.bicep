@@ -50,6 +50,9 @@ module fileShare 'support.bicep' = {
   }
 }
 
+// random thing doesn't work.  We try to force it to redeploy container every time
+// we would need it due to parameters as they are different
+
 module createFile 'job.bicep' = {
   name: 'fileCreationContainerInstance'
   params: {
@@ -63,8 +66,7 @@ module createFile 'job.bicep' = {
       ilinesNumber
       xlinesNumber
       samplesNumber
-      ';'
-      'echo this is random ${random}'
+      random
     ]
     mountPath: mountPath
     // ilinesNumber: ilinesNumber
@@ -94,8 +96,7 @@ module uploadFile 'job.bicep' = {
       '/tests/data/cloud.py'
       'upload_container'
       filePath
-      ';'
-      'echo this is random ${random}'
+      random
     ]
     mountPath: mountPath
   }

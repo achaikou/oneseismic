@@ -115,7 +115,14 @@ jobs:
           STORAGE_LOCATION: ${{ env.STORAGE_LOCATION }}
           AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
         run: |
-          python script.js --vus ${{ matrix.vus }} --duration ${{ matrix.duration }}
+          tag=performance
+          docker build -f tests/performance/Dockerfile -t $tag .
+            docker run \
+            -e AZURE_STORAGE_ACCOUNT_KEY \
+            -e STORAGE_LOCATION \
+            -e SERVER_URL \
+            $tag \
+            /bin/sh -c 'python ./tests/performance/performance.py ${{ matrix.vus }} ${{ matrix.duration }}'
 
       - name: Print stderr
         run: |

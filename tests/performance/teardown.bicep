@@ -17,6 +17,7 @@ var mountPath = '/mnt'
 var fileName = 'temp.segy'
 var filePath = '${mountPath}/${fileName}'
 
+// impossible to run two commands
 module cleanup 'job.bicep' = {
   name: 'cleanupContainerInstance'
   params: {
