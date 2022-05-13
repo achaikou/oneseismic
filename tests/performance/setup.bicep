@@ -86,7 +86,7 @@ module uploadFile 'job.bicep' = {
     storageResourceName: storageResourceName
     command: [
       'python'
-      '/tests/data/azure.py'
+      '/tests/data/cloud.py'
       'upload_container'
       filePath
     ]

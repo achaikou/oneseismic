@@ -112,6 +112,9 @@ if __name__ == "__main__":
     elif structure == "random":
         create_random(path)
     elif structure == "dimensional":
-        create_dimensional(path, sys.argv[3:])
+        ilines = sys.argv[3]
+        xlines = sys.argv[4]
+        samples = sys.argv[5]
+        create_dimensional(path, ilines, xlines, samples)
     else:
         raise ValueError("Unknown file structure")

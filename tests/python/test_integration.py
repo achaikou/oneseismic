@@ -10,7 +10,7 @@ import segyio
 import azure
 from data.create import *
 from data.upload import upload, scan
-from data.azure import upload_container, storage_account_name, generate_account_signature, generate_container_signature
+from data.cloud import upload_container, storage_account_name, generate_account_signature, generate_container_signature
 
 # required
 SERVER_URL = os.getenv("SERVER_URL")

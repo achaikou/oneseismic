@@ -1,6 +1,6 @@
 import os
 import subprocess
-from data.azure import generate_container_signature, storage_account_name
+from data.cloud import generate_container_signature, storage_account_name
 
 def runPerformanceTests():
     account_name = storage_account_name(os.getenv("STORAGE_LOCATION"))
