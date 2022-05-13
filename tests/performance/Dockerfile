@@ -14,5 +14,6 @@ COPY ./python /python
 RUN python -m pip install -r /python/requirements-dev.txt
 ENV UPLOAD_WITH_PYTHON python
 ENV PYTHONPATH "${PYTHONPATH}:/python"
+ENV PYTHONPATH "${PYTHONPATH}:/tests"
 
 COPY ./tests /tests
