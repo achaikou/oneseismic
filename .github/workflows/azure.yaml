@@ -113,6 +113,7 @@ jobs:
         env:
           SERVER_URL: ${{ env.SERVER_URL }}
           STORAGE_LOCATION: ${{ env.STORAGE_LOCATION }}
+          GUID: ${{ env.GUID }}
           AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
         run: |
           tag=performance
@@ -121,6 +122,7 @@ jobs:
             -e AZURE_STORAGE_ACCOUNT_KEY \
             -e STORAGE_LOCATION \
             -e SERVER_URL \
+            -e GUID \
             $tag \
             /bin/sh -c 'python ./tests/performance/performance.py ${{ matrix.vus }} ${{ matrix.duration }}'
 
