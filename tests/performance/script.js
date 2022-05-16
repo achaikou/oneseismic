@@ -16,7 +16,7 @@ export const options = {
       executor: "constant-vus",
       vus: 1,
       duration: "5s",
-      exec: "request",
+      //exec: "request",
     },
   },
 
@@ -140,7 +140,8 @@ function retrieveResult(promise) {
   }
 }
 
-export function request() {
+export default function () {
+//export function request() {
   const promise = sendRequest()
   waitForOperationFinished(promise)
   retrieveResult(promise)

@@ -10,6 +10,7 @@ def runPerformanceTests(vus, duration):
     sas = generate_container_signature(account_name=account_name, container_name=guid, account_key=key)
     os.environ["SAS"] = sas
 
+    # "--env scenario=contacts, "
     performance = subprocess.run(["k6", "run", "/tests/performance/script.js", "--vus", vus, "--duration", duration], encoding="utf-8", capture_output=True)
 
     with open("/out/stdout.txt", "w") as text_file:

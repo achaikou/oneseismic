@@ -143,14 +143,7 @@ jobs:
       - name: Print summary
         if: always()
         run: |
-          cat summary.json
-
-      - name: Check run again
-        if: always()
-        run: |
-          docker run \
-            ${{ env.TEST_IMAGE_TAG }} \
-            /bin/sh -c 'cat /out/stderr.txt'
+          cat out/summary.json
 
       # these two always as well. And continue on failure
       - name: Cleanup created files
