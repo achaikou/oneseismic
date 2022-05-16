@@ -35,8 +35,6 @@ function sendRequest() {
   const guid   = __ENV.GUID
 
   console.log("Lets fun begin!")
-  console.log(server)
-  console.log(guid)
 
   const query = `
   query getSlice{
@@ -46,7 +44,9 @@ function sendRequest() {
   }`;
 
   const queryUrl = `${server}/graphql?${auth}`;
+  console.log("Sending first request")
   const res = http.post(queryUrl, JSON.stringify({ query: query }), {});
+  console.log("Received response")
 
   const queryResStatusCheck = check(
     res,
@@ -55,6 +55,7 @@ function sendRequest() {
     },
     { responseStatusChecks: "query" }
   );
+  console.log("Check performed")
   if (!queryResStatusCheck) {
     fail(`Wrong 'query' response status: ${res.status}`);
   }
