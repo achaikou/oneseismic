@@ -12,9 +12,9 @@ def runPerformanceTests(vus, duration):
 
     performance = subprocess.run(["k6", "run", "script.js", "--vus", vus, "--duration", duration], encoding="utf-8", capture_output=True)
 
-    with open("stdout.txt", "w") as text_file:
+    with open("/out/stdout.txt", "w") as text_file:
         text_file.write(performance.stdout)
-    with open("stderr.txt", "w") as text_file:
+    with open("/out/stderr.txt", "w") as text_file:
         text_file.write(performance.stderr)
 
     if performance.returncode:

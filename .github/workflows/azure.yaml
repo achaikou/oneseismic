@@ -119,24 +119,30 @@ jobs:
           AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
         run: |
           tag=performance
+          echo "TEST_IMAGE_TAG=$tag" >> $GITHUB_ENV
           docker build -f tests/performance/Dockerfile -t $tag .
           docker run \
             -e AZURE_STORAGE_ACCOUNT_KEY \
             -e STORAGE_LOCATION \
             -e SERVER_URL \
             -e GUID \
-            -v dockerlogs:/tests/performance \
+            -v $(pwd)/out:/out \
             $tag \
             /bin/sh -c 'python ./tests/performance/performance.py ${{ matrix.vus }} ${{ matrix.duration }}'
 
       - name: Print stderr
         if: always()
         run: |
-          pwd
           ls
-          ls  dockerlogs
-          cat dockerlogs/stderr.txt
-          cat stderr.txt
+          ls out/
+          cat out/stderr.txt
+
+      - name: Run performance tests
+        if: always()
+        run: |
+          docker run \
+            ${{ env.TEST_IMAGE_TAG }} \
+            /bin/sh -c 'cat /out/stderr.txt}'
 
       - name: Print stdout
         if: always()
