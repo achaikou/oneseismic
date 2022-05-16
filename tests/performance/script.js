@@ -34,6 +34,10 @@ function sendRequest() {
   const auth   = __ENV.SAS
   const guid   = __ENV.GUID
 
+  console.log("Lets fun begin!")
+  console.log(server)
+  console.log(guid)
+
   const query = `
   query getSlice{
     cube (id: "${guid}") {
@@ -54,6 +58,8 @@ function sendRequest() {
   if (!queryResStatusCheck) {
     fail(`Wrong 'query' response status: ${res.status}`);
   }
+
+  console.log("Before suspicious data check")
 
   const queryResDataCheck = check(
     res,

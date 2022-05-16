@@ -63,13 +63,13 @@ def storage_account_name(storage_url):
     return urlsplit(storage_url).netloc.split('.')[0]
 
 
-def upload_container(upload_with_python, filepath, storage_url, storage_account_key):
+def upload_container(upload_with_python, filepath, storage_url, storage_account_key, scan_meta=None):
     """
     Upload file to storage url
     """
     upload_token = generate_account_signature(storage_account_name(storage_url), storage_account_key)
     storage_location = storage_url + "?" +upload_token
-    return upload(upload_with_python, filepath, storage_location=storage_location)
+    return upload(upload_with_python, filepath, storage_location=storage_location, scan_meta=scan_meta)
 
 
 def delete_container(guid, storage_url, storage_account_key):
