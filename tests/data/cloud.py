@@ -4,7 +4,7 @@ import datetime
 from urllib.parse import urlsplit
 import os
 
-from .upload import *
+from data.upload import *
 
 def generate_account_signature(
     account_name,
