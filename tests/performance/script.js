@@ -150,6 +150,6 @@ export function request() {
 export function handleSummary(data) {
   return {
     'stdout': textSummary(data, { indent: ' ', enableColors: false }),
-    "summary.json": JSON.stringify(data),
+    "/out/summary.json": JSON.stringify(data),
   };
 }
