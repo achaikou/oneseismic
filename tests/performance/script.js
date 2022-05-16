@@ -24,7 +24,7 @@ export const options = {
     "checks{responseStatusChecks:query}": [{threshold: 'rate == 1.00'}],
     "checks{responseStatusChecks:status}": [{threshold: 'rate == 1.00'}],
     "checks{responseStatusChecks:result}": [{threshold: 'rate == 1.00'}],
-    "checks{responseDataChecks:query}": [{threshold: 'rate == 1.00', abortOnFail: true}], //setup likely down
+    "checks{responseDataChecks:query}": [{threshold: 'rate == 1.00'}], //setup likely down
     "checks{responseDataChecks:status}": [{threshold: 'rate == 1.00'}],
   },
 };
@@ -44,7 +44,6 @@ function sendRequest() {
   }`;
 
   const queryUrl = `${server}/graphql?${auth}`;
-  sleep(0.5) //remove
   console.log("I am still with you and sending first request")
   const res = http.post(queryUrl, JSON.stringify({ query: query }), {});
   console.log("Received response")
