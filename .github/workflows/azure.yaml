@@ -90,10 +90,12 @@ jobs:
           parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }}  ilinesNumber=${{ matrix.ilines }} xlinesNumber=${{ matrix.xlines }} samplesNumber=${{ matrix.samples }}
 
       - name: Print create logs
+        if: always()
         run: |
           az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.CREATE_CONTAINER_INSTANCE }}
 
       - name: Print upload logs
+        if: always()
         run: |
           guid=$(az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.UPLOAD_CONTAINER_INSTANCE }} )
           echo $guid
@@ -123,21 +125,30 @@ jobs:
             -e STORAGE_LOCATION \
             -e SERVER_URL \
             -e GUID \
+            -v dockerlogs:/tests/performance \
             $tag \
             /bin/sh -c 'python ./tests/performance/performance.py ${{ matrix.vus }} ${{ matrix.duration }}'
 
       - name: Print stderr
+        if: always()
         run: |
+          pwd
+          ls
+          ls  dockerlogs
+          cat dockerlogs/stderr.txt
           cat stderr.txt
 
       - name: Print stdout
+        if: always()
         run: |
           cat stdout.txt
 
       - name: Print summary
+        if: always()
         run: |
           cat summary.json
 
+      # these two always as well. And continue on failure
       - name: Cleanup created files
         uses: azure/arm-deploy@v1
         with:
