@@ -44,7 +44,8 @@ function sendRequest() {
   }`;
 
   const queryUrl = `${server}/graphql?${auth}`;
-  console.log("Sending first request")
+  sleep(0.5) //remove
+  console.log("I am still with you and sending first request")
   const res = http.post(queryUrl, JSON.stringify({ query: query }), {});
   console.log("Received response")
 
