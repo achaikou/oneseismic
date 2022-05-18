@@ -42,8 +42,8 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
   name: name
   location: location
   properties: {
-    containers: [
-    // initContainers: [
+    //containers: [
+    initContainers: [
       {
         name: name
         properties: {
@@ -70,18 +70,18 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
               mountPath: mountPath
             }
           ]
-    //     }
-    //   }
-    // ]
-    // containers: [
-    //   {
-    //     name: 'boringcontainer'
-    //     properties: {
-    //       image: image
-    //       command: [
-    //         'python'
-    //         'idontexist.py'
-    //       ]
+        }
+      }
+    ]
+    containers: [
+      {
+        name: 'boringcontainer'
+        properties: {
+          image: image
+          command: [
+            'python'
+            'idontexist.py'
+          ]
           resources: {
             requests: {
               cpu: 1
