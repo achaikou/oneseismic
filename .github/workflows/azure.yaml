@@ -101,6 +101,7 @@ jobs:
         run: |
           az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.CREATE_CONTAINER_INSTANCE }}
 
+# do something here - if guid is not guid, too much stuff fails.
       - name: Print upload logs
         if: always()
         run: |
