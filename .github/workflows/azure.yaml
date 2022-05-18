@@ -145,19 +145,6 @@ jobs:
         run: |
           cat out/summary.json
 
-      - name: Lets try no python
-        if: always()
-        env:
-          SERVER_URL: ${{ env.SERVER_URL }}
-          STORAGE_LOCATION: ${{ env.STORAGE_LOCATION }}
-          GUID: ${{ env.GUID }}
-          AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
-          SAS: 1234
-        uses: grafana/k6-action@v0.2.0
-        with:
-          filename: tests/performance/script.js
-          flags: --vus 1 --duration 10s
-
       # these two always as well. And continue on failure
       - name: Cleanup created files
         uses: azure/arm-deploy@v1

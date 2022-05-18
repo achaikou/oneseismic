@@ -34,8 +34,6 @@ function sendRequest() {
   const auth   = __ENV.SAS
   const guid   = __ENV.GUID
 
-  console.log("Lets fun begin!")
-
   const query = `
   query getSlice{
     cube (id: "${guid}") {
@@ -44,9 +42,7 @@ function sendRequest() {
   }`;
 
   const queryUrl = `${server}/graphql?${auth}`;
-  console.log("I am still with you and sending first request")
   const res = http.post(queryUrl, JSON.stringify({ query: query }), {});
-  console.log("Received response")
 
   const queryResStatusCheck = check(
     res,
@@ -55,18 +51,15 @@ function sendRequest() {
     },
     { responseStatusChecks: "query" }
   );
-  console.log("Check performed")
   if (!queryResStatusCheck) {
     fail(`Wrong 'query' response status: ${res.status}`);
   }
-
-  console.log("Before suspicious data check")
 
   const queryResDataCheck = check(
     res,
     {
       'query response: no errors returned': (r) => !r.json().hasOwnProperty('errors'),
-      'query response: there is cube data': (r) => r.json()['data'].hasOwnProperty('cube'),
+      //'query response: there is cube data': (r) => r.json()['data'].hasOwnProperty('cube'),
     },
     { responseDataChecks: "query" }
   );
