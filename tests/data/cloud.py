@@ -97,7 +97,7 @@ if __name__ == "__main__":
     elif function == "delete_container":
         storage_account_key = os.getenv("AZURE_STORAGE_ACCOUNT_KEY")
         storage_url = os.getenv("STORAGE_LOCATION")
-        guid = os.getenv("GUID")
+        guid = sys.argv[2]
         delete_container(guid, storage_url, storage_account_key)
     else:
         raise ValueError("Unknown function")

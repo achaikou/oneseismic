@@ -4,6 +4,9 @@ param setupPrefix string
 @description('Random value which will hopefully make containers to restart every time.')
 param random string
 
+@description('GUID')
+param guid string
+
 param location string = resourceGroup().location
 
 @description('Storage account with the seismic data.')
@@ -33,6 +36,7 @@ module deleteContainer 'job.bicep' = {
       'python'
       '/tests/data/cloud.py'
       'delete_container'
+      guid
     ]
     mountPath: mountPath
     random: random

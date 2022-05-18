@@ -154,7 +154,7 @@ jobs:
           deploymentName: performanceTests-teardown
           resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
           template: tests/performance/teardown.bicep
-          parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }}
+          parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} guid=${{ env.GUID }}
 
       - name: Print container delete logs
         if: always()
