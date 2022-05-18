@@ -44,6 +44,8 @@ resource containerApp 'Microsoft.App/containerApps@2022-01-01-preview' existing 
 var imageName = '${containerRegistry.properties.loginServer}/playground/performance'
 var mountPath = '/mnt'
 var filePath = '${mountPath}/${fileName}'
+var createLogFilePath = '${mountPath}/create.log'
+var uploadLogFilePath = '${mountPath}/upload.log'
 
 module fileShare 'support.bicep' = {
   name: 'fileShareSetup'
@@ -61,16 +63,12 @@ module createFile 'job.bicep' = {
     name: '${setupPrefix}-create-file-job'
     image: imageName
     command: [
-      'python'
-      '/tests/data/create.py'
-      'dimensional'
-      filePath
-      ilinesNumber
-      xlinesNumber
-      samplesNumber
-      random
+      '/bin/sh'
+      '-c'
+      'echo python /tests/data/create.py dimensional ${filePath} ${ilinesNumber} ${xlinesNumber} ${samplesNumber} > ${createLogFilePath}'
     ]
     mountPath: mountPath
+    logFilePath: createLogFilePath
     location: location
     containerRegistryResourceName: containerRegistryResourceName
     storageResourceName: storageResourceName
@@ -81,7 +79,6 @@ module createFile 'job.bicep' = {
   ]
 }
 
-
 module uploadFile 'job.bicep' = {
   name: 'fileUploadContainerInstance'
   params: {
@@ -90,12 +87,11 @@ module uploadFile 'job.bicep' = {
     location: location
     containerRegistryResourceName: containerRegistryResourceName
     storageResourceName: storageResourceName
+    logFilePath: uploadLogFilePath
     command: [
-      'python'
-      '/tests/data/cloud.py'
-      'upload_container'
-      filePath
-      random
+      '/bin/sh'
+      '-c'
+      'echo python /tests/data/cloud.py upload_container ${filePath} > ${uploadLogFilePath}'
     ]
     mountPath: mountPath
     random: random

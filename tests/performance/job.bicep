@@ -12,6 +12,9 @@ param image string
 @description('Mount share path')
 param mountPath string
 
+@description('Path to file job log is stored in')
+param logFilePath string
+
 @description('Name of File Share used for temporary storing created files.')
 param fileShareName string = 'performanceshare'
 
@@ -39,13 +42,13 @@ resource storage 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {
 }
 
 resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01' = {
-  name: '${name}-group'
+  name: name
   location: location
   properties: {
     //containers: [
     initContainers: [
       {
-        name: name
+        name: '${name}-init'
         properties: {
           // variables are common for all the jobs
           environmentVariables: [
@@ -75,13 +78,19 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
     ]
     containers: [
       {
-        name: 'boringcontainer'
+        name: 'printresult'
         properties: {
           image: image
           command: [
             '/bin/sh'
             '-c'
-            'echo ${name} finished ${random}; exit 0'
+            '$(cat ${logFilePath})'
+          ]
+          volumeMounts: [
+            {
+              name: 'filesharevolume'
+              mountPath: mountPath
+            }
           ]
           resources: {
             requests: {
