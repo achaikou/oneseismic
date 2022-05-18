@@ -39,7 +39,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {
 }
 
 resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01' = {
-  name: name
+  name: '${name}-group'
   location: location
   properties: {
     //containers: [
@@ -79,8 +79,9 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
         properties: {
           image: image
           command: [
-            'python'
-            'idontexist.py'
+            '/bin/sh'
+            '-c'
+            'echo ${name} finished; exit 0'
           ]
           resources: {
             requests: {
