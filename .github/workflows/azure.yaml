@@ -77,7 +77,7 @@ jobs:
           echo "CREATE_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-create-file-job" >> $GITHUB_ENV
           echo "UPLOAD_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-upload-file-job" >> $GITHUB_ENV
           echo "CLEANUP_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-cleanup-files-job" >> $GITHUB_ENV
-          echo "STORAGE_LOCATION=${{ secrets.SETUP_PREFIX }}0storage" >> $GITHUB_ENV
+          echo "STORAGE_URL=https://${{ secrets.SETUP_PREFIX }}0storage.blob.core.windows.net" >> $GITHUB_ENV
           echo "RANDOM_VALUE"=$RANDOM >> $GITHUB_ENV
 
         # CI doesn't have enough space for large files. So create and upload them with Azure
@@ -114,7 +114,7 @@ jobs:
       - name: Run performance tests
         env:
           SERVER_URL: ${{ env.SERVER_URL }}
-          STORAGE_LOCATION: ${{ env.STORAGE_LOCATION }}
+          STORAGE_LOCATION: ${{ env.STORAGE_URL }}
           GUID: ${{ env.GUID }}
           AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
         run: |
