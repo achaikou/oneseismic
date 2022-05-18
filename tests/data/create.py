@@ -112,6 +112,7 @@ if __name__ == "__main__":
     elif structure == "random":
         create_random(path)
     elif structure == "dimensional":
+        print("Creating dimensional structure")
         ilines = sys.argv[3]
         xlines = sys.argv[4]
         samples = sys.argv[5]

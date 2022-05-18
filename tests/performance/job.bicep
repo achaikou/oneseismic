@@ -9,29 +9,17 @@ param command array
 @description('Container image to deploy')
 param image string
 
-// @description('Segy file name')
-// param sourceFileName string = 'test.segy'
-
 @description('Mount share path')
 param mountPath string
 
 @description('Name of File Share used for temporary storing created files.')
 param fileShareName string = 'performanceshare'
 
-// @description('Data creation only: Number of samples')
-// param samplesNumber string = '5'
-
-// @description('Data creation only: Number of ilines')
-// param ilinesNumber string = '5'
-
-// @description('Data creation only: Number of xlines')
-// param xlinesNumber string = '5'
-
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
 @description('Random value which will hopefully make containers to restart every time.')
-param random string = '42'
+param random string
 
 /*
 * All the dependent existing resources.
@@ -55,6 +43,7 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
   location: location
   properties: {
     containers: [
+    // initContainers: [
       {
         name: name
         properties: {
@@ -69,25 +58,9 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
               secureValue: storage.listKeys().keys[0].value
             }
             {
-              name: 'RANDOM_UNUSED'
+              name: 'FORCE_CONTAINER_RESTART_ON_CREATION_CHEAT'
               value: random
             }
-            // {
-            //   name: 'FILE_PATH'
-            //   value: '${mountPath}/${sourceFileName}'
-            // }
-            // {
-            //   name: 'SAMPLES_NUMBER'
-            //   value: samplesNumber
-            // }
-            // {
-            //   name: 'ILINES_NUMBER'
-            //   value: ilinesNumber
-            // }
-            // {
-            //   name: 'XLINES_NUMBER'
-            //   value: xlinesNumber
-            // }
           ]
           image: image
           command: command
@@ -97,6 +70,18 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
               mountPath: mountPath
             }
           ]
+    //     }
+    //   }
+    // ]
+    // containers: [
+    //   {
+    //     name: 'boringcontainer'
+    //     properties: {
+    //       image: image
+    //       command: [
+    //         'python'
+    //         'idontexist.py'
+    //       ]
           resources: {
             requests: {
               cpu: 1
@@ -108,6 +93,7 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
     ]
     osType: 'Linux'
     restartPolicy: 'Never'
+    sku: 'Standard'
     imageRegistryCredentials: [
       {
         server: containerRegistry.properties.loginServer

@@ -4,6 +4,9 @@ param setupPrefix string
 @description('Random value which will hopefully make containers to restart every time.')
 param random string
 
+@description('Name of the created segy file')
+param fileName string
+
 @description('Data creation only: Number of ilines')
 param ilinesNumber string
 
@@ -40,7 +43,6 @@ resource containerApp 'Microsoft.App/containerApps@2022-01-01-preview' existing 
 
 var imageName = '${containerRegistry.properties.loginServer}/playground/performance'
 var mountPath = '/mnt'
-var fileName = 'temp.segy'
 var filePath = '${mountPath}/${fileName}'
 
 module fileShare 'support.bicep' = {
@@ -66,16 +68,12 @@ module createFile 'job.bicep' = {
       ilinesNumber
       xlinesNumber
       samplesNumber
-      random
     ]
     mountPath: mountPath
-    // ilinesNumber: ilinesNumber
-    // xlinesNumber: xlinesNumber
-    // samplesNumber: samplesNumber
-    // sourceFileName: fileName
     location: location
     containerRegistryResourceName: containerRegistryResourceName
     storageResourceName: storageResourceName
+    random: random
   }
   dependsOn: [
     fileShare
@@ -96,9 +94,9 @@ module uploadFile 'job.bicep' = {
       '/tests/data/cloud.py'
       'upload_container'
       filePath
-      random
     ]
     mountPath: mountPath
+    random: random
   }
   dependsOn: [
     createFile

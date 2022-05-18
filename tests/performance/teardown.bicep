@@ -4,6 +4,9 @@ param setupPrefix string
 @description('Random value which will hopefully make containers to restart every time.')
 param random string
 
+@description('Name of the created segy file')
+param fileName string
+
 @description('GUID')
 param guid string
 
@@ -20,7 +23,6 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' e
 
 var imageName = '${containerRegistry.properties.loginServer}/playground/performance'
 var mountPath = '/mnt'
-var fileName = 'temp.segy'
 var filePath = '${mountPath}/${fileName}'
 
 // impossible to run two commands
