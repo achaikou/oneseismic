@@ -30,6 +30,9 @@ param fileShareName string = 'performanceshare'
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
+@description('Random value which will hopefully make containers to restart every time.')
+param random string = '42'
+
 /*
 * All the dependent existing resources.
 * At the moment all the below are expected in current resourceGroup.
@@ -64,6 +67,10 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
             {
               name: 'AZURE_STORAGE_ACCOUNT_KEY'
               secureValue: storage.listKeys().keys[0].value
+            }
+            {
+              name: 'RANDOM_UNUSED'
+              value: random
             }
             // {
             //   name: 'FILE_PATH'

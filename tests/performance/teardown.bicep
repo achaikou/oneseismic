@@ -1,6 +1,9 @@
 @description('Setup ID: a unique prefix for resource names.')
 param setupPrefix string
 
+@description('Random value which will hopefully make containers to restart every time.')
+param random string
+
 param location string = resourceGroup().location
 
 @description('Storage account with the seismic data.')
@@ -18,23 +21,41 @@ var fileName = 'temp.segy'
 var filePath = '${mountPath}/${fileName}'
 
 // impossible to run two commands
-module cleanup 'job.bicep' = {
-  name: 'cleanupContainerInstance'
+module deleteContainer 'job.bicep' = {
+  name: 'deleteContainerContainerInstance'
   params: {
-    name: '${setupPrefix}-cleanup-files-job'
+    name: '${setupPrefix}-delete-container-job'
     image: imageName
     location: location
     containerRegistryResourceName: containerRegistryResourceName
     storageResourceName: storageResourceName
     command: [
       'python'
-      '/tests/data/azure.py'
+      '/tests/data/cloud.py'
       'delete_container'
-      ';'
+    ]
+    mountPath: mountPath
+    random: random
+  }
+}
 
+module deleteFile 'job.bicep' = {
+  name: 'deleteFileContainerInstance'
+  params: {
+    name: '${setupPrefix}-delete-file-job'
+    image: imageName
+    location: location
+    containerRegistryResourceName: containerRegistryResourceName
+    storageResourceName: storageResourceName
+    command: [
       'rm'
       filePath
     ]
     mountPath: mountPath
+    random: random
   }
 }
+
+
+
+
