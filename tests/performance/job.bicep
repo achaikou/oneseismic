@@ -86,6 +86,20 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
             '-c'
             '$(cat ${logFilePath})'
           ]
+          environmentVariables: [
+            {
+              name: 'STORAGE_LOCATION'
+              value: storage.properties.primaryEndpoints.blob
+            }
+            {
+              name: 'AZURE_STORAGE_ACCOUNT_KEY'
+              secureValue: storage.listKeys().keys[0].value
+            }
+            {
+              name: 'FORCE_CONTAINER_RESTART_ON_CREATION_CHEAT'
+              value: random
+            }
+          ]
           volumeMounts: [
             {
               name: 'filesharevolume'
