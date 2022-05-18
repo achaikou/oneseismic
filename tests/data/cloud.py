@@ -92,7 +92,6 @@ if __name__ == "__main__":
         storage_url = os.getenv("STORAGE_LOCATION")
         #filepath = os.getenv("FILE_PATH")
         filepath = sys.argv[2]
-        print(storage_url)
         guid = upload_container(upload_with_python, filepath, storage_url, storage_account_key)
         print(guid)
     elif function == "delete_container":

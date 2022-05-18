@@ -89,9 +89,16 @@ module uploadFile 'job.bicep' = {
     storageResourceName: storageResourceName
     logFilePath: uploadLogFilePath
     command: [
-      '/bin/sh'
-      '-c'
-      'echo python /tests/data/cloud.py upload_container ${filePath} > ${uploadLogFilePath}'
+      // '/bin/sh'
+      // '-c'
+      // 'echo python /tests/data/cloud.py upload_container ${filePath} > ${uploadLogFilePath}'
+      'echo'
+      'python'
+      '/tests/data/cloud.py'
+      'upload_container'
+      filePath
+      '>'
+      uploadLogFilePath
     ]
     mountPath: mountPath
     random: random
