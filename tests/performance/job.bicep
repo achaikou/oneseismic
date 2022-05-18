@@ -81,7 +81,7 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
           command: [
             '/bin/sh'
             '-c'
-            'echo ${name} finished; exit 0'
+            'echo ${name} finished ${random}; exit 0'
           ]
           resources: {
             requests: {
