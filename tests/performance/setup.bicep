@@ -68,6 +68,7 @@ module createFile 'job.bicep' = {
       ilinesNumber
       xlinesNumber
       samplesNumber
+      random
     ]
     mountPath: mountPath
     location: location
@@ -94,6 +95,7 @@ module uploadFile 'job.bicep' = {
       '/tests/data/cloud.py'
       'upload_container'
       filePath
+      random
     ]
     mountPath: mountPath
     random: random
