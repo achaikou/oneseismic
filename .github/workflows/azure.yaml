@@ -58,9 +58,9 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - ilines: 10
-            xlines: 9
-            samples: 8
+          - ilines: 400
+            xlines: 3
+            samples: 15
             duration: "10s"
             vus: 1
           # - ilines: 4000
