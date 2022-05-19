@@ -81,8 +81,7 @@ jobs:
           echo "CONTAINER_REGISTRY=${{ secrets.SETUP_PREFIX }}0containerRegistry.azurecr.io" >> $GITHUB_ENV
           echo "CREATE_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-create-file-job" >> $GITHUB_ENV
           echo "UPLOAD_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-upload-file-job" >> $GITHUB_ENV
-          echo "DELETE_CONTAINER_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-delete-container-job" >> $GITHUB_ENV
-          echo "DELETE_FILE_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-delete-file-job" >> $GITHUB_ENV
+          echo "CLEANUP_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-cleanup-container-job" >> $GITHUB_ENV
           echo "STORAGE_URL=https://${{ secrets.SETUP_PREFIX }}0storage.blob.core.windows.net" >> $GITHUB_ENV
           echo "RANDOM_VALUE"=$RANDOM >> $GITHUB_ENV
           echo "FILENAME=${{ matrix.ilines }}-x-${{ matrix.xlines }}-x-${{ matrix.samples }}.segy" >> $GITHUB_ENV
@@ -163,12 +162,7 @@ jobs:
           template: tests/performance/teardown.bicep
           parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }} guid=${{ env.GUID }}
 
-      - name: Print container delete logs
+      - name: Print container cleanup logs
         if: always()
         run: |
-          az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.DELETE_CONTAINER_CONTAINER_INSTANCE }}
-
-      - name: Print file delete logs
-        if: always()
-        run: |
-          az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.DELETE_FILE_CONTAINER_INSTANCE }}
+          az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.CLEANUP_CONTAINER_INSTANCE }}
