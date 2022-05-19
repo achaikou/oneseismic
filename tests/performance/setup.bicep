@@ -45,7 +45,7 @@ var imageName = '${containerRegistry.properties.loginServer}/playground/performa
 var mountPath = '/mnt'
 var filePath = '${mountPath}/${fileName}'
 var createLogFilePath = '${mountPath}/create.log'
-var uploadLogFilePath = '${mountPath}/upload.log'
+//var uploadLogFilePath = '${mountPath}/upload.log'
 
 module fileShare 'support.bicep' = {
   name: 'fileShareSetup'
