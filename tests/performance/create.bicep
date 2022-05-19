@@ -43,7 +43,7 @@ var filePath = '${mountPath}/${fileName}'
 // var createLogFilePath = '${mountPath}/create.log'
 
 
-// move setup out? App, fileshare
+// move setup out? App, fileshare. Or create address as parameter? We can reuse on production then maybe?
 module fileShare 'support.bicep' = {
   name: 'fileShareSetup'
   params: {
