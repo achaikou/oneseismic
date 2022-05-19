@@ -152,17 +152,17 @@ jobs:
         run: |
           cat out/summary.json
 
-      # these two always as well. And continue on failure
-      - name: Cleanup created files
-        if: always()
-        uses: azure/arm-deploy@v1
-        with:
-          deploymentName: performanceTests-teardown
-          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
-          template: tests/performance/teardown.bicep
-          parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }} guid=${{ env.GUID }}
+      # # these two always as well. And continue on failure
+      # - name: Cleanup created files
+      #   if: always()
+      #   uses: azure/arm-deploy@v1
+      #   with:
+      #     deploymentName: performanceTests-teardown
+      #     resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
+      #     template: tests/performance/teardown.bicep
+      #     parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }} guid=${{ env.GUID }}
 
-      - name: Print container cleanup logs
-        if: always()
-        run: |
-          az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.CLEANUP_CONTAINER_INSTANCE }}
+      # - name: Print container cleanup logs
+      #   if: always()
+      #   run: |
+      #     az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.CLEANUP_CONTAINER_INSTANCE }}

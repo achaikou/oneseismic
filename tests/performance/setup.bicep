@@ -79,26 +79,26 @@ module createFile 'job.bicep' = {
   ]
 }
 
-module uploadFile 'job.bicep' = {
-  name: 'fileUploadContainerInstance'
-  params: {
-    name: '${setupPrefix}-upload-file-job'
-    image: imageName
-    location: location
-    containerRegistryResourceName: containerRegistryResourceName
-    storageResourceName: storageResourceName
-    logFilePath: uploadLogFilePath
-    command: [
-      '/bin/sh'
-      '-c'
-      'echo python /tests/data/cloud.py upload_container ${filePath} > ${uploadLogFilePath}'
-    ]
-    mountPath: mountPath
-    random: random
-  }
-  dependsOn: [
-    createFile
-  ]
-}
+// module uploadFile 'job.bicep' = {
+//   name: 'fileUploadContainerInstance'
+//   params: {
+//     name: '${setupPrefix}-upload-file-job'
+//     image: imageName
+//     location: location
+//     containerRegistryResourceName: containerRegistryResourceName
+//     storageResourceName: storageResourceName
+//     logFilePath: uploadLogFilePath
+//     command: [
+//       '/bin/sh'
+//       '-c'
+//       'echo python /tests/data/cloud.py upload_container ${filePath} > ${uploadLogFilePath}'
+//     ]
+//     mountPath: mountPath
+//     random: random
+//   }
+//   dependsOn: [
+//     createFile
+//   ]
+// }
 
 output serverURL string = 'https://${containerApp.properties.configuration.ingress.fqdn}'
