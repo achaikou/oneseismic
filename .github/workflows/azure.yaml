@@ -96,7 +96,7 @@ jobs:
           parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }} ilinesNumber=${{ matrix.ilines }} xlinesNumber=${{ matrix.xlines }} samplesNumber=${{ matrix.samples }}
 
       - name: Wait until file is created
-        timeout-minutes: 20
+        timeout-minutes: 30
         uses: './.github/actions/wait_for_container_termination'
         with:
           container_instance_name: ${{ env.CREATE_CONTAINER_INSTANCE }}
