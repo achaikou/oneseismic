@@ -60,7 +60,7 @@ jobs:
         include:
           - ilines: 400
             xlines: 300
-            samples: 15
+            samples: 150
             duration: "10s"
             vus: 1
           # - ilines: 4000
