@@ -39,7 +39,7 @@ module cleanupContainer 'job.bicep' = {
     command: [
       '/bin/sh'
       '-c'
-      'python /tests/data/cloud.py delete_container ${guid}; rm ${filePath}'
+      'rm ${filePath}; python /tests/data/cloud.py delete_container ${guid}'
     ]
     mountPath: mountPath
     random: random

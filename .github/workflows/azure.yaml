@@ -129,7 +129,7 @@ jobs:
           output=$(az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.UPLOAD_CONTAINER_INSTANCE }} )
           echo $output
           if [[ $output = *" "* ]]; then
-            echo "Upload output must contain GUID"
+            echo "CI: Unexpected upload output. Expected just GUID"
             exit 1
           fi
           echo "GUID=$output" >> $GITHUB_ENV
