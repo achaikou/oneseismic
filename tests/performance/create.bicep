@@ -33,10 +33,6 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' e
   name: containerRegistryResourceName
 }
 
-resource storage 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {
-  name: storageResourceName
-}
-
 resource containerApp 'Microsoft.App/containerApps@2022-01-01-preview' existing = {
   name: containerAppName
 }
@@ -45,8 +41,9 @@ var imageName = '${containerRegistry.properties.loginServer}/playground/performa
 var mountPath = '/mnt'
 var filePath = '${mountPath}/${fileName}'
 var createLogFilePath = '${mountPath}/create.log'
-//var uploadLogFilePath = '${mountPath}/upload.log'
 
+
+// move setup out? App, fileshare
 module fileShare 'support.bicep' = {
   name: 'fileShareSetup'
   params: {
@@ -54,8 +51,6 @@ module fileShare 'support.bicep' = {
   }
 }
 
-// random thing doesn't work.  We try to force it to redeploy container every time
-// we would need it due to parameters as they are different
 
 module createFile 'job.bicep' = {
   name: 'fileCreationContainerInstance'
@@ -78,27 +73,5 @@ module createFile 'job.bicep' = {
     fileShare
   ]
 }
-
-// module uploadFile 'job.bicep' = {
-//   name: 'fileUploadContainerInstance'
-//   params: {
-//     name: '${setupPrefix}-upload-file-job'
-//     image: imageName
-//     location: location
-//     containerRegistryResourceName: containerRegistryResourceName
-//     storageResourceName: storageResourceName
-//     logFilePath: uploadLogFilePath
-//     command: [
-//       '/bin/sh'
-//       '-c'
-//       'echo python /tests/data/cloud.py upload_container ${filePath} > ${uploadLogFilePath}'
-//     ]
-//     mountPath: mountPath
-//     random: random
-//   }
-//   dependsOn: [
-//     createFile
-//   ]
-// }
 
 output serverURL string = 'https://${containerApp.properties.configuration.ingress.fqdn}'

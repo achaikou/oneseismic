@@ -1,0 +1,26 @@
+name: Container wait
+description: Wait until container job terminates aka task is done
+
+inputs:
+  container_instance_name:
+    description: Name of the task container instance
+    required: true
+  resource_group:
+    description: Resource group name
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Wait until job is done
+      shell: bash
+      run: |
+        status=Unknown
+        while [ "$status" != "Terminated" ]
+        do
+          sleep 5
+          status=$(az container show --name ${{ inputs.container_instance_name  }} --resource-group ${{ inputs.resource_group  }} | \
+            python -c "import sys, json; print(json.load(sys.stdin)['containers'][0]['instanceView']['currentState']['state'])"
+          )
+          echo $status
+        done
