@@ -126,9 +126,13 @@ jobs:
       - name: Print upload logs
         if: always()
         run: |
-          guid=$(az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.UPLOAD_CONTAINER_INSTANCE }} )
-          echo $guid
-          echo "GUID=$guid" >> $GITHUB_ENV
+          output=$(az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.UPLOAD_CONTAINER_INSTANCE }} )
+          echo $output
+          if [[ $output = *" "* ]]; then
+            echo "Upload output must contain GUID"
+            exit 1
+          fi
+          echo "GUID=$output" >> $GITHUB_ENV
 
       - name: Set server URL
         run: |

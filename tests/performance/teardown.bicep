@@ -24,7 +24,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' e
 var imageName = '${containerRegistry.properties.loginServer}/playground/performance'
 var mountPath = '/mnt'
 var filePath = '${mountPath}/${fileName}'
-var cleanupLogFilePath = '${mountPath}/cleanup.log'
+//var cleanupLogFilePath = '${mountPath}/cleanup.log'
 
 // impossible to run two commands
 module cleanupContainer 'job.bicep' = {
@@ -33,13 +33,13 @@ module cleanupContainer 'job.bicep' = {
     name: '${setupPrefix}-cleanup-container-job'
     image: imageName
     location: location
-    logFilePath: cleanupLogFilePath
+    // logFilePath: cleanupLogFilePath
     containerRegistryResourceName: containerRegistryResourceName
     storageResourceName: storageResourceName
     command: [
       '/bin/sh'
       '-c'
-      'echo python /tests/data/cloud.py delete_container ${guid} > ${cleanupLogFilePath}; rm ${filePath}'
+      'python /tests/data/cloud.py delete_container ${guid}; rm ${filePath}'
     ]
     mountPath: mountPath
     random: random

@@ -12,8 +12,8 @@ param image string
 @description('Mount share path')
 param mountPath string
 
-@description('Path to file job log is stored in')
-param logFilePath string
+// @description('Path to file job log is stored in')
+// param logFilePath string
 
 @description('Name of File Share used for temporary storing created files.')
 param fileShareName string = 'performanceshare'
@@ -45,10 +45,10 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
   name: name
   location: location
   properties: {
-    //containers: [
-    initContainers: [
+    containers: [
+    //initContainers: [
       {
-        name: '${name}-init'
+        name: name
         properties: {
           // variables are common for all the jobs
           environmentVariables: [
@@ -73,39 +73,39 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
               mountPath: mountPath
             }
           ]
-        }
-      }
-    ]
-    containers: [
-      {
-        name: 'printresult'
-        properties: {
-          image: image
-          command: [
-            '/bin/sh'
-            '-c'
-            '$(cat ${logFilePath})'
-          ]
-          environmentVariables: [
-            {
-              name: 'STORAGE_LOCATION'
-              value: storage.properties.primaryEndpoints.blob
-            }
-            {
-              name: 'AZURE_STORAGE_ACCOUNT_KEY'
-              secureValue: storage.listKeys().keys[0].value
-            }
-            {
-              name: 'FORCE_CONTAINER_RESTART_ON_CREATION_CHEAT'
-              value: random
-            }
-          ]
-          volumeMounts: [
-            {
-              name: 'filesharevolume'
-              mountPath: mountPath
-            }
-          ]
+    //     }
+    //   }
+    // ]
+    // containers: [
+    //   {
+    //     name: 'printresult'
+    //     properties: {
+    //       image: image
+    //       command: [
+    //         '/bin/sh'
+    //         '-c'
+    //         '$(cat ${logFilePath})'
+    //       ]
+    //       environmentVariables: [
+    //         {
+    //           name: 'STORAGE_LOCATION'
+    //           value: storage.properties.primaryEndpoints.blob
+    //         }
+    //         {
+    //           name: 'AZURE_STORAGE_ACCOUNT_KEY'
+    //           secureValue: storage.listKeys().keys[0].value
+    //         }
+    //         {
+    //           name: 'FORCE_CONTAINER_RESTART_ON_CREATION_CHEAT'
+    //           value: random
+    //         }
+    //       ]
+    //       volumeMounts: [
+    //         {
+    //           name: 'filesharevolume'
+    //           mountPath: mountPath
+    //         }
+    //       ]
           resources: {
             requests: {
               cpu: 2

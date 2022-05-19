@@ -40,7 +40,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-01-01-preview' existing 
 var imageName = '${containerRegistry.properties.loginServer}/playground/performance'
 var mountPath = '/mnt'
 var filePath = '${mountPath}/${fileName}'
-var createLogFilePath = '${mountPath}/create.log'
+// var createLogFilePath = '${mountPath}/create.log'
 
 
 // move setup out? App, fileshare
@@ -60,10 +60,10 @@ module createFile 'job.bicep' = {
     command: [
       '/bin/sh'
       '-c'
-      'echo python /tests/data/create.py dimensional ${filePath} ${ilinesNumber} ${xlinesNumber} ${samplesNumber} > ${createLogFilePath}'
+      'python /tests/data/create.py dimensional ${filePath} ${ilinesNumber} ${xlinesNumber} ${samplesNumber}'
     ]
     mountPath: mountPath
-    logFilePath: createLogFilePath
+    // logFilePath: createLogFilePath
     location: location
     containerRegistryResourceName: containerRegistryResourceName
     storageResourceName: storageResourceName

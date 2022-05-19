@@ -25,7 +25,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' e
 var imageName = '${containerRegistry.properties.loginServer}/playground/performance'
 var mountPath = '/mnt'
 var filePath = '${mountPath}/${fileName}'
-var uploadLogFilePath = '${mountPath}/upload.log'
+// var uploadLogFilePath = '${mountPath}/upload.log'
 
 
 module uploadFile 'job.bicep' = {
@@ -36,11 +36,11 @@ module uploadFile 'job.bicep' = {
     location: location
     containerRegistryResourceName: containerRegistryResourceName
     storageResourceName: storageResourceName
-    logFilePath: uploadLogFilePath
+    // logFilePath: uploadLogFilePath
     command: [
       '/bin/sh'
       '-c'
-      'echo python /tests/data/cloud.py upload_container ${filePath} > ${uploadLogFilePath}'
+      'python /tests/data/cloud.py upload_container ${filePath}'
     ]
     mountPath: mountPath
     random: random

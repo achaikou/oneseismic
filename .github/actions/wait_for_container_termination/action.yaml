@@ -18,7 +18,7 @@ runs:
         status=Unknown
         while [ "$status" != "Terminated" ]
         do
-          sleep 5
+          sleep 30
           status=$(az container show --name ${{ inputs.container_instance_name  }} --resource-group ${{ inputs.resource_group  }} | \
             python -c "import sys, json; print(json.load(sys.stdin)['containers'][0]['instanceView']['currentState']['state'])"
           )
