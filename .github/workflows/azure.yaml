@@ -126,6 +126,7 @@ jobs:
       - name: Print upload logs
         if: always()
         run: |
+          # problem: if something is wrong, this will print sas token. Token still might be valid. So maybe logs shouldn't be printed?
           output=$(az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.UPLOAD_CONTAINER_INSTANCE }} )
           echo $output
           if [[ $output = *" "* ]]; then
