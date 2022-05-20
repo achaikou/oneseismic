@@ -116,7 +116,7 @@ jobs:
           parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }}
 
       - name: Wait until file is uploaded
-        timeout-minutes: 30
+        timeout-minutes: 60
         uses: './.github/actions/wait_for_container_termination'
         with:
           container_instance_name: ${{ env.UPLOAD_CONTAINER_INSTANCE }}
