@@ -17,8 +17,8 @@ def generate_account_signature(
     Create account signature for azure request
     """
     if not expiry:
-        # clock skew issues require a bit longer time
-        expiry = datetime.datetime.utcnow() + datetime.timedelta(minutes=5)
+        # Token should be valid for all the time it takes to upload data
+        expiry = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
     if not permission:
         permission = blob.AccountSasPermissions(
             read=True, write=True, list=True)
