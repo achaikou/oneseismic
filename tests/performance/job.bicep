@@ -109,11 +109,7 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
           resources: {
             requests: {
               cpu: 4
-              memoryInGB: 4
-              gpu: {
-                sku: 'K80'
-                count: 1
-              }
+              memoryInGB: 16
             }
           }
         }
