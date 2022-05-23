@@ -62,7 +62,7 @@ module createFile 'job.bicep' = {
       '-c'
       'python /tests/data/create.py dimensional ${filePath} ${ilinesNumber} ${xlinesNumber} ${samplesNumber}'
     ]
-    mountPath: mountPath
+    //mountPath: mountPath
     // logFilePath: createLogFilePath
     location: location
     containerRegistryResourceName: containerRegistryResourceName

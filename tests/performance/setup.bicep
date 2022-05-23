@@ -7,6 +7,15 @@ param random string
 @description('Name of the created segy file')
 param fileName string
 
+@description('Data creation only: Number of ilines')
+param ilinesNumber string
+
+@description('Data creation only: Number of xlines')
+param xlinesNumber string
+
+@description('Data creation only: Number of samples')
+param samplesNumber string
+
 param location string = resourceGroup().location
 
 /**
@@ -17,32 +26,37 @@ param location string = resourceGroup().location
 param storageResourceName string = '${setupPrefix}0storage'
 @description('Container registry where server images are stored.')
 param containerRegistryResourceName string = '${setupPrefix}0containerRegistry'
+// @description('Container app used for access.')
+// param containerAppName string = '${setupPrefix}-nginx'
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
   name: containerRegistryResourceName
 }
 
+
 var imageName = '${containerRegistry.properties.loginServer}/playground/performance'
-var mountPath = '/mnt'
+var mountPath = '/data'
 var filePath = '${mountPath}/${fileName}'
-// var uploadLogFilePath = '${mountPath}/upload.log'
+// var createLogFilePath = '${mountPath}/create.log'
 
+var createJob = 'python /tests/data/create.py dimensional ${filePath} ${ilinesNumber} ${xlinesNumber} ${samplesNumber}'
+var uploadJob = 'python /tests/data/cloud.py upload_container ${filePath}'
 
-module uploadFile 'job.bicep' = {
-  name: 'fileUploadContainerInstance'
+module setup 'job.bicep' = {
+  name: 'setupContainerInstance'
   params: {
-    name: '${setupPrefix}-upload-file-job'
+    name: '${setupPrefix}-performance-setup-job'
     image: imageName
-    location: location
-    containerRegistryResourceName: containerRegistryResourceName
-    storageResourceName: storageResourceName
-    // logFilePath: uploadLogFilePath
     command: [
       '/bin/sh'
       '-c'
-      'python /tests/data/cloud.py upload_container ${filePath}'
+      '${createJob}; ${uploadJob}'
     ]
     //mountPath: mountPath
+    // logFilePath: createLogFilePath
+    location: location
+    containerRegistryResourceName: containerRegistryResourceName
+    storageResourceName: storageResourceName
     random: random
   }
 }
