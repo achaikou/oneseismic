@@ -35,8 +35,9 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' e
 
 
 var imageName = '${containerRegistry.properties.loginServer}/playground/performance'
-var mountPath = '/data'
-var filePath = '${mountPath}/${fileName}'
+// var mountPath = '/data'
+// var filePath = '${mountPath}/${fileName}'
+var filePath = fileName
 // var createLogFilePath = '${mountPath}/create.log'
 
 var createJob = 'python /tests/data/create.py dimensional ${filePath} ${ilinesNumber} ${xlinesNumber} ${samplesNumber}'
