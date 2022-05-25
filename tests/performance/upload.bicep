@@ -43,7 +43,10 @@ module uploadFile 'job.bicep' = {
     //   'python /tests/data/cloud.py upload_container ${filePath}'
     // ]
     command: [
-      'python /tests/data/cloud.py upload_container ${filePath}'
+      'python'
+      '/tests/data/cloud.py'
+      'upload_container'
+      filePath
     ]
     mountPath: mountPath
     random: random

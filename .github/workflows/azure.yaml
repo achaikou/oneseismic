@@ -131,7 +131,7 @@ jobs:
           output=$(az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.UPLOAD_CONTAINER_INSTANCE }} )
           echo $output
           guid=`echo "${output}" | head -1`
-          if [[ $guid = *" "* ]]; then
+          if [[ $guid = *" "* || -z "$guid" ]]; then
             echo "CI: Unexpected upload output. Expected first line to be GUID"
             exit 1
           fi

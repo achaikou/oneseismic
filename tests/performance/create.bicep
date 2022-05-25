@@ -63,7 +63,13 @@ module createFile 'job.bicep' = {
     //   'python /tests/data/create.py dimensional ${filePath} ${ilinesNumber} ${xlinesNumber} ${samplesNumber}'
     // ]
     command: [
-      'python /tests/data/create.py dimensional ${filePath} ${ilinesNumber} ${xlinesNumber} ${samplesNumber}'
+      'python'
+      '/tests/data/create.py'
+      'dimensional'
+      filePath
+      ilinesNumber
+      xlinesNumber
+      samplesNumber
     ]
     mountPath: mountPath
     // logFilePath: createLogFilePath
