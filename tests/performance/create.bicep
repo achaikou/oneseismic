@@ -57,9 +57,12 @@ module createFile 'job.bicep' = {
   params: {
     name: '${setupPrefix}-create-file-job'
     image: imageName
+    // command: [
+    //   '/bin/sh'
+    //   '-c'
+    //   'python /tests/data/create.py dimensional ${filePath} ${ilinesNumber} ${xlinesNumber} ${samplesNumber}'
+    // ]
     command: [
-      '/bin/sh'
-      '-c'
       'python /tests/data/create.py dimensional ${filePath} ${ilinesNumber} ${xlinesNumber} ${samplesNumber}'
     ]
     mountPath: mountPath

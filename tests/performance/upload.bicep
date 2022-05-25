@@ -37,9 +37,12 @@ module uploadFile 'job.bicep' = {
     containerRegistryResourceName: containerRegistryResourceName
     storageResourceName: storageResourceName
     // logFilePath: uploadLogFilePath
+    // command: [
+    //   '/bin/sh'
+    //   '-c'
+    //   'python /tests/data/cloud.py upload_container ${filePath}'
+    // ]
     command: [
-      '/bin/sh'
-      '-c'
       'python /tests/data/cloud.py upload_container ${filePath}'
     ]
     mountPath: mountPath

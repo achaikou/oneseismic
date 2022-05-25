@@ -3,6 +3,7 @@ import numpy as np
 import random
 import sys
 import os
+import datetime
 
 def create_custom(path):
     """ Create file with simple constant data.
@@ -116,6 +117,8 @@ if __name__ == "__main__":
         ilines = sys.argv[3]
         xlines = sys.argv[4]
         samples = sys.argv[5]
+        print(datetime.datetime.now())
         create_dimensional(path, ilines, xlines, samples)
+        print(datetime.datetime.now())
     else:
         raise ValueError("Unknown file structure")

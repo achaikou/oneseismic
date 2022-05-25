@@ -3,6 +3,7 @@ from azure.storage import blob
 import datetime
 from urllib.parse import urlsplit
 import os
+import datetime
 
 from data.upload import *
 
@@ -93,12 +94,18 @@ if __name__ == "__main__":
         storage_url = os.getenv("STORAGE_LOCATION")
         #filepath = os.getenv("FILE_PATH")
         filepath = sys.argv[2]
+        before = datetime.datetime.now()
         guid = upload_container(upload_with_python, filepath, storage_url, storage_account_key)
+        after = datetime.datetime.now()
         print(guid)
+        print(before)
+        print(after)
     elif function == "delete_container":
         storage_account_key = os.getenv("AZURE_STORAGE_ACCOUNT_KEY")
         storage_url = os.getenv("STORAGE_LOCATION")
         guid = sys.argv[2]
+        print(datetime.datetime.now())
         delete_container(guid, storage_url, storage_account_key)
+        print(datetime.datetime.now())
     else:
         raise ValueError("Unknown function")
