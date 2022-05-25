@@ -57,6 +57,7 @@ module createFile 'job.bicep' = {
   params: {
     name: '${setupPrefix}-create-file-job'
     image: imageName
+    // do not do multi-taks commands like '/bin/sh' '-c' 'command1; command2' - it doesn't exit on its own
     // command: [
     //   '/bin/sh'
     //   '-c'

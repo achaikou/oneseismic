@@ -59,9 +59,9 @@ jobs:
       matrix:
         include:
           - ilines: 4000
-            xlines: 300
+            xlines: 3000
             samples: 1500
-            duration: "1m"
+            duration: "2m"
             vus: 1
           # - ilines: 4000
           #   xlines: 3000
@@ -117,7 +117,7 @@ jobs:
           parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }}
 
       - name: Wait until file is uploaded
-        timeout-minutes: 60
+        timeout-minutes: 200
         uses: './.github/actions/wait_for_container_termination'
         with:
           container_instance_name: ${{ env.UPLOAD_CONTAINER_INSTANCE }}
