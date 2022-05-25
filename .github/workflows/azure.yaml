@@ -59,8 +59,8 @@ jobs:
       matrix:
         include:
           - ilines: 4000
-            xlines: 3000
-            samples: 150
+            xlines: 300
+            samples: 1500
             duration: "1m"
             vus: 1
           # - ilines: 4000
