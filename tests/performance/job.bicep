@@ -9,14 +9,14 @@ param command array
 @description('Container image to deploy')
 param image string
 
-// @description('Mount share path')
-// param mountPath string
+@description('Mount share path')
+param mountPath string
 
-// // @description('Path to file job log is stored in')
-// // param logFilePath string
+// @description('Path to file job log is stored in')
+// param logFilePath string
 
-// @description('Name of File Share used for temporary storing created files.')
-// param fileShareName string = 'performanceshare'
+@description('Name of File Share used for temporary storing created files.')
+param fileShareName string = 'performanceshare'
 
 @description('Location for all resources.')
 param location string = resourceGroup().location
@@ -67,12 +67,12 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
           ]
           image: image
           command: command
-          // volumeMounts: [
-          //   {
-          //     name: 'filesharevolume'
-          //     mountPath: mountPath
-          //   }
-          // ]
+          volumeMounts: [
+            {
+              name: 'filesharevolume'
+              mountPath: mountPath
+            }
+          ]
     //     }
     //   }
     // ]
@@ -125,16 +125,16 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
         password: containerRegistry.listCredentials().passwords[0].value
       }
     ]
-    // volumes: [
-    //   {
-    //     name: 'filesharevolume'
-    //     azureFile: {
-    //       shareName: fileShareName
-    //       storageAccountName: storage.name
-    //       storageAccountKey: storage.listKeys().keys[0].value
-    //     }
-    //   }
-    // ]
+    volumes: [
+      {
+        name: 'filesharevolume'
+        azureFile: {
+          shareName: fileShareName
+          storageAccountName: storage.name
+          storageAccountKey: storage.listKeys().keys[0].value
+        }
+      }
+    ]
   }
 }
 

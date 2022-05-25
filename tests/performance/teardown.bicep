@@ -41,7 +41,7 @@ module cleanupContainer 'job.bicep' = {
       '-c'
       'rm ${filePath}; python /tests/data/cloud.py delete_container ${guid}'
     ]
-    //mountPath: mountPath
+    mountPath: mountPath
     random: random
   }
 }

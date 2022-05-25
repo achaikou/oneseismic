@@ -42,7 +42,7 @@ module uploadFile 'job.bicep' = {
       '-c'
       'python /tests/data/cloud.py upload_container ${filePath}'
     ]
-    //mountPath: mountPath
+    mountPath: mountPath
     random: random
   }
 }

@@ -82,95 +82,68 @@ jobs:
           echo "CREATE_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-create-file-job" >> $GITHUB_ENV
           echo "UPLOAD_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-upload-file-job" >> $GITHUB_ENV
           echo "CLEANUP_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-cleanup-container-job" >> $GITHUB_ENV
-          echo "SETUP_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-performance-setup-job" >> $GITHUB_ENV
           echo "STORAGE_URL=https://${{ secrets.SETUP_PREFIX }}0storage.blob.core.windows.net" >> $GITHUB_ENV
           echo "RANDOM_VALUE"=$RANDOM >> $GITHUB_ENV
           echo "FILENAME=${{ matrix.ilines }}-x-${{ matrix.xlines }}-x-${{ matrix.samples }}.segy" >> $GITHUB_ENV
 
         # CI doesn't have enough space for large files. So create and upload them with Azure
-#       - name: Create segy file
-#         uses: azure/arm-deploy@v1
-#         with:
-#           deploymentName: performanceTests-createFile
-#           resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
-#           template: tests/performance/create.bicep
-#           parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }} ilinesNumber=${{ matrix.ilines }} xlinesNumber=${{ matrix.xlines }} samplesNumber=${{ matrix.samples }}
-
-#       - name: Wait until file is created
-#         timeout-minutes: 60
-#         uses: './.github/actions/wait_for_container_termination'
-#         with:
-#           container_instance_name: ${{ env.CREATE_CONTAINER_INSTANCE }}
-#           resource_group: ${{ secrets.RESOURCE_GROUP }}
-
-#       - name: Print create logs
-#         if: always()
-#         run: |
-#           az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.CREATE_CONTAINER_INSTANCE }}
-
-#       - name: Upload file
-#         uses: azure/arm-deploy@v1
-#         with:
-#           deploymentName: performanceTests-uploadFile
-#           resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
-#           template: tests/performance/upload.bicep
-#           parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }}
-
-#       - name: Wait until file is uploaded
-#         timeout-minutes: 60
-#         uses: './.github/actions/wait_for_container_termination'
-#         with:
-#           container_instance_name: ${{ env.UPLOAD_CONTAINER_INSTANCE }}
-#           resource_group: ${{ secrets.RESOURCE_GROUP }}
-
-# # do something here - if guid is not guid, too much stuff fails.
-#       - name: Print upload logs
-#         if: always()
-#         run: |
-#           # problem: if something is wrong, this will print sas token. Token still might be valid. So maybe logs shouldn't be printed?
-#           output=$(az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.UPLOAD_CONTAINER_INSTANCE }} )
-#           echo $output
-#           if [[ $output = *" "* ]]; then
-#             echo "CI: Unexpected upload output. Expected just GUID"
-#             exit 1
-#           fi
-#           echo "GUID=$output" >> $GITHUB_ENV
-
-#       - name: Set server URL
-#         run: |
-#           serverURL=$(az deployment group show \
-#             -g ${{ secrets.RESOURCE_GROUP }} \
-#             -n performanceTests-setup \
-#             --query properties.outputs.serverURL.value \
-#             -o tsv
-#           )
-#           echo "SERVER_URL=$serverURL" >> $GITHUB_ENV
-
-      - name: Setupp
+      - name: Create segy file
         uses: azure/arm-deploy@v1
         with:
-          deploymentName: performanceTests-setup
+          deploymentName: performanceTests-createFile
           resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
-          template: tests/performance/setup.bicep
+          template: tests/performance/create.bicep
           parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }} ilinesNumber=${{ matrix.ilines }} xlinesNumber=${{ matrix.xlines }} samplesNumber=${{ matrix.samples }}
 
-      - name: Wait until job is processed
+      - name: Wait until file is created
         timeout-minutes: 60
         uses: './.github/actions/wait_for_container_termination'
         with:
-          container_instance_name: ${{ env.SETUP_CONTAINER_INSTANCE }}
+          container_instance_name: ${{ env.CREATE_CONTAINER_INSTANCE }}
+          resource_group: ${{ secrets.RESOURCE_GROUP }}
+
+      - name: Print create logs
+        if: always()
+        run: |
+          az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.CREATE_CONTAINER_INSTANCE }}
+
+      - name: Upload file
+        uses: azure/arm-deploy@v1
+        with:
+          deploymentName: performanceTests-uploadFile
+          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
+          template: tests/performance/upload.bicep
+          parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }}
+
+      - name: Wait until file is uploaded
+        timeout-minutes: 60
+        uses: './.github/actions/wait_for_container_termination'
+        with:
+          container_instance_name: ${{ env.UPLOAD_CONTAINER_INSTANCE }}
           resource_group: ${{ secrets.RESOURCE_GROUP }}
 
 # do something here - if guid is not guid, too much stuff fails.
-      - name: Print setup logs
+      - name: Print upload logs
         if: always()
         run: |
-          output=$(az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.SETUP_CONTAINER_INSTANCE }} )
+          # problem: if something is wrong, this will print sas token. Token still might be valid. So maybe logs shouldn't be printed?
+          output=$(az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.UPLOAD_CONTAINER_INSTANCE }} )
+          echo $output
           if [[ $output = *" "* ]]; then
-            echo "CI: Unexpected upload output. Expected just GUID. (logs not printed here as they may contain sensitive data)"
+            echo "CI: Unexpected upload output. Expected just GUID"
             exit 1
           fi
           echo "GUID=$output" >> $GITHUB_ENV
+
+      - name: Set server URL
+        run: |
+          serverURL=$(az deployment group show \
+            -g ${{ secrets.RESOURCE_GROUP }} \
+            -n performanceTests-setup \
+            --query properties.outputs.serverURL.value \
+            -o tsv
+          )
+          echo "SERVER_URL=$serverURL" >> $GITHUB_ENV
 
       - name: Run performance tests
         env:
@@ -206,24 +179,24 @@ jobs:
         run: |
           cat out/summary.json
 
-      # # # these two always as well. And continue on failure
-      # - name: Cleanup created files
-      #   if: always()
-      #   uses: azure/arm-deploy@v1
-      #   with:
-      #     deploymentName: performanceTests-teardown
-      #     resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
-      #     template: tests/performance/teardown.bicep
-      #     parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }} guid=${{ env.GUID }}
+      # # these two always as well. And continue on failure
+      - name: Cleanup created files
+        if: always()
+        uses: azure/arm-deploy@v1
+        with:
+          deploymentName: performanceTests-teardown
+          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
+          template: tests/performance/teardown.bicep
+          parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }} guid=${{ env.GUID }}
 
-      # - name: Wait until data is deleted
-      #   timeout-minutes: 10
-      #   uses: './.github/actions/wait_for_container_termination'
-      #   with:
-      #     container_instance_name: ${{ env.CLEANUP_CONTAINER_INSTANCE }}
-      #     resource_group: ${{ secrets.RESOURCE_GROUP }}
+      - name: Wait until data is deleted
+        timeout-minutes: 10
+        uses: './.github/actions/wait_for_container_termination'
+        with:
+          container_instance_name: ${{ env.CLEANUP_CONTAINER_INSTANCE }}
+          resource_group: ${{ secrets.RESOURCE_GROUP }}
 
-      # - name: Print container cleanup logs
-      #   if: always()
-      #   run: |
-      #     az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.CLEANUP_CONTAINER_INSTANCE }}
+      - name: Print container cleanup logs
+        if: always()
+        run: |
+          az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.CLEANUP_CONTAINER_INSTANCE }}
