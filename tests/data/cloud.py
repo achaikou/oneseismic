@@ -19,7 +19,7 @@ def generate_account_signature(
     """
     if not expiry:
         # Token should be valid for all the time it takes to upload data
-        expiry = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        expiry = datetime.datetime.utcnow() + datetime.timedelta(hours=5)
     if not permission:
         permission = blob.AccountSasPermissions(
             read=True, write=True, list=True)
