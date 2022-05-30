@@ -14,6 +14,8 @@ param location string = resourceGroup().location
 
 @description('Storage account with the seismic data.')
 param storageResourceName string = '${setupPrefix}0storage'
+@description('Storage account (blob and file share) for temporary storing test data.')
+param segyStorageResourceName string
 @description('Container registry where server images are stored.')
 param containerRegistryResourceName string = '${setupPrefix}0containerRegistry'
 
@@ -36,6 +38,7 @@ module cleanupContainer 'job.bicep' = {
     // logFilePath: cleanupLogFilePath
     containerRegistryResourceName: containerRegistryResourceName
     storageResourceName: storageResourceName
+    segyStorageResourceName: segyStorageResourceName
     command: [
       '/bin/sh'
       '-c'

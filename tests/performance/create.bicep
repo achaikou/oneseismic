@@ -24,6 +24,8 @@ param location string = resourceGroup().location
   */
 @description('Storage account with the seismic data.')
 param storageResourceName string = '${setupPrefix}0storage'
+@description('Storage account (blob and file share) for temporary storing test data.')
+param segyStorageResourceName string
 @description('Container registry where server images are stored.')
 param containerRegistryResourceName string = '${setupPrefix}0containerRegistry'
 @description('Container app used for access.')
@@ -47,7 +49,7 @@ var filePath = '${mountPath}/${fileName}'
 module fileShare 'support.bicep' = {
   name: 'fileShareSetup'
   params: {
-    storageResourceName: storageResourceName
+    storageResourceName: segyStorageResourceName
   }
 }
 
@@ -77,6 +79,7 @@ module createFile 'job.bicep' = {
     location: location
     containerRegistryResourceName: containerRegistryResourceName
     storageResourceName: storageResourceName
+    segyStorageResourceName: segyStorageResourceName
     random: random
   }
   dependsOn: [

@@ -28,8 +28,10 @@ param random string
 * All the dependent existing resources.
 * At the moment all the below are expected in current resourceGroup.
 */
-@description('Storage account (blob and file share) for temporary storing test data.')
+@description('Storage account where upload files to.')
 param storageResourceName string
+@description('Storage account (blob and file share) for temporary storing test data.')
+param segyStorageResourceName string
 @description('Container registry where server images are stored.')
 param containerRegistryResourceName string
 
@@ -39,6 +41,10 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' e
 
 resource storage 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {
   name: storageResourceName
+}
+
+resource segyStorage 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {
+  name: segyStorageResourceName
 }
 
 resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01' = {
@@ -130,8 +136,8 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-09-01'
         name: 'filesharevolume'
         azureFile: {
           shareName: fileShareName
-          storageAccountName: storage.name
-          storageAccountKey: storage.listKeys().keys[0].value
+          storageAccountName: segyStorage.name
+          storageAccountKey: segyStorage.listKeys().keys[0].value
         }
       }
     ]
