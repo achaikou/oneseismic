@@ -111,6 +111,7 @@ function waitForOperationFinished(promise) {
     }
 
     fetchStatus = JSON.parse(res.body).status;
+    sleep(10)
   }
 }
 

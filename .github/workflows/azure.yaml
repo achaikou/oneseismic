@@ -61,7 +61,7 @@ jobs:
           - ilines: 400
             xlines: 3000
             samples: 1500
-            duration: "2m"
+            duration: "3m"
             vus: 1
           # - ilines: 4000
           #   xlines: 3000
@@ -183,23 +183,23 @@ jobs:
           cat out/summary.json
 
       # # these two always as well. And continue on failure
-      - name: Cleanup created files
-        if: always()
-        uses: azure/arm-deploy@v1
-        with:
-          deploymentName: performanceTests-teardown
-          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
-          template: tests/performance/teardown.bicep
-          parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }} segyStorageResourceName=${{ env.SAVED_FILE_STORAGE }} guid=${{ env.GUID }}
+      # - name: Cleanup created files
+      #   if: always()
+      #   uses: azure/arm-deploy@v1
+      #   with:
+      #     deploymentName: performanceTests-teardown
+      #     resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
+      #     template: tests/performance/teardown.bicep
+      #     parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }} segyStorageResourceName=${{ env.SAVED_FILE_STORAGE }} guid=${{ env.GUID }}
 
-      - name: Wait until data is deleted
-        timeout-minutes: 10
-        uses: './.github/actions/wait_for_container_termination'
-        with:
-          container_instance_name: ${{ env.CLEANUP_CONTAINER_INSTANCE }}
-          resource_group: ${{ secrets.RESOURCE_GROUP }}
+      # - name: Wait until data is deleted
+      #   timeout-minutes: 10
+      #   uses: './.github/actions/wait_for_container_termination'
+      #   with:
+      #     container_instance_name: ${{ env.CLEANUP_CONTAINER_INSTANCE }}
+      #     resource_group: ${{ secrets.RESOURCE_GROUP }}
 
-      - name: Print container cleanup logs
-        if: always()
-        run: |
-          az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.CLEANUP_CONTAINER_INSTANCE }}
+      # - name: Print container cleanup logs
+      #   if: always()
+      #   run: |
+      #     az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.CLEANUP_CONTAINER_INSTANCE }}
