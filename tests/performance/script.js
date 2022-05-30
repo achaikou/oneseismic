@@ -113,7 +113,7 @@ function waitForOperationFinished(promise) {
     }
 
     fetchStatus = JSON.parse(res.body).status;
-    console.log(`Current status is ${fetchStatus}`);
+    console.log(`Current progress is ${JSON.parse(res.body).progress}`);
   }
 }
 
