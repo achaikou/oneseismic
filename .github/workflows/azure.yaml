@@ -61,7 +61,7 @@ jobs:
           - ilines: 400
             xlines: 3000
             samples: 1500
-            duration: "3m"
+            duration: "2m"
             vus: 1
           # - ilines: 4000
           #   xlines: 3000
