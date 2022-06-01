@@ -6,6 +6,7 @@ import os
 import datetime
 
 from data.upload import *
+from data.create import create_dimensional
 
 def generate_account_signature(
     account_name,
@@ -107,5 +108,25 @@ if __name__ == "__main__":
         print(datetime.datetime.now())
         delete_container(guid, storage_url, storage_account_key)
         print(datetime.datetime.now())
+    elif function == "full":
+        upload_with_python = os.getenv("UPLOAD_WITH_PYTHON")
+        storage_account_key = os.getenv("AZURE_STORAGE_ACCOUNT_KEY")
+        storage_url = os.getenv("STORAGE_LOCATION")
+        filepath = sys.argv[2]
+        ilines = sys.argv[3]
+        xlines = sys.argv[4]
+        samples = sys.argv[5]
+
+        print(datetime.datetime.now())
+        create_dimensional(filepath, ilines, xlines, samples)
+        print(datetime.datetime.now())
+
+        before = datetime.datetime.now()
+        guid = upload_container(upload_with_python, filepath, storage_url, storage_account_key)
+        after = datetime.datetime.now()
+
+        print(guid)
+        print(before)
+        print(after)
     else:
         raise ValueError("Unknown function")
