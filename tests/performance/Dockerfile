@@ -16,7 +16,4 @@ ENV UPLOAD_WITH_PYTHON python
 ENV PYTHONPATH "${PYTHONPATH}:/python"
 ENV PYTHONPATH "${PYTHONPATH}:/tests"
 
-RUN pip install openvds
-
-
 COPY ./tests /tests
