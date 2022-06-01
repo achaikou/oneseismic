@@ -45,10 +45,16 @@ module uploadFile 'job.bicep' = {
     //   '-c'
     //   'python /tests/data/cloud.py upload_container ${filePath}'
     // ]
+    // command: [
+    //   'python'
+    //   '/tests/data/cloud.py'
+    //   'upload_container'
+    //   filePath
+    // ]
     command: [
       'python'
       '/tests/data/cloud.py'
-      'upload_container'
+      'upload_vds_sas'
       filePath
     ]
     mountPath: mountPath

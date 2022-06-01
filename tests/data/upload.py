@@ -25,3 +25,17 @@ def upload(upload_with_python, path, storage_location, scan_meta=None):
     res.check_returncode()
 
     return scan_meta["guid"]
+
+def upload_vds(storage_account_name, sas, filepath):
+    url="azureSAS://{}.blob.core.windows.net/testycontainer".format(storage_account_name)
+    connection="Suffix=?{}".format(sas)
+    res = subprocess.run(["SEGYImport", "--url", url, "--url-connection", connection, filepath], encoding="utf-8",
+                capture_output=True, check=False)
+    # if res.returncode:
+    #     print(res.stderr)
+    #     print(res.stdout)
+
+    print(res.stderr)
+    print(res.stdout)
+
+    res.check_returncode()

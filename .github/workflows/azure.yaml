@@ -58,7 +58,7 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - ilines: 4000
+          - ilines: 400
             xlines: 3000
             samples: 1500
             duration: "2m"

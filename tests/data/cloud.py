@@ -73,6 +73,10 @@ def upload_container(upload_with_python, filepath, storage_url, storage_account_
     storage_location = storage_url + "?" +upload_token
     return upload(upload_with_python, filepath, storage_location=storage_location, scan_meta=scan_meta)
 
+def upload_to_vds_sas(filepath, storage_url, storage_account_key):
+    account_name = storage_account_name(storage_url)
+    upload_token = generate_account_signature(account_name, storage_account_key)
+    upload_vds(account_name, upload_token, filepath)
 
 def delete_container(guid, storage_url, storage_account_key):
     token = generate_account_signature(storage_account_name(storage_url), storage_account_key, permission=blob.AccountSasPermissions(delete=True))
@@ -107,5 +111,15 @@ if __name__ == "__main__":
         print(datetime.datetime.now())
         delete_container(guid, storage_url, storage_account_key)
         print(datetime.datetime.now())
+    elif function == "upload_vds_sas":
+        storage_account_key = os.getenv("AZURE_STORAGE_ACCOUNT_KEY")
+        storage_url = os.getenv("STORAGE_LOCATION")
+        print(storage_url)
+        filepath = sys.argv[2]
+        before = datetime.datetime.now()
+        upload_to_vds_sas(filepath, storage_url, storage_account_key)
+        after = datetime.datetime.now()
+        print(before)
+        print(after)
     else:
         raise ValueError("Unknown function")
