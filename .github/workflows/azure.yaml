@@ -187,7 +187,7 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - duration: "2m"
+          - duration: "1m"
             vus: 1
 
     steps:

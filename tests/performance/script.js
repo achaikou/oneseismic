@@ -86,8 +86,6 @@ function waitForOperationFinished(promise) {
 
   var fetchStatus = "";
   while (fetchStatus !== "finished") {
-    // Result.Status (code in go) indicates there is a bug in status if we first ask for result too early?
-    sleep(5)
     const res = http.get(statusURL, options);
 
     const statusResStatusCheck = check(
@@ -114,6 +112,10 @@ function waitForOperationFinished(promise) {
 
     fetchStatus = JSON.parse(res.body).status;
     console.log(`Current progress is ${JSON.parse(res.body).progress}`);
+
+    // Result.Status (code in go) indicates there is a bug in status if we first ask for result too early?
+    // unclear. Real error is due to pod restart
+    sleep(1)
   }
 }
 
