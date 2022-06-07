@@ -2,6 +2,33 @@ name: CI-Azure
 
 on:
   workflow_dispatch:
+    inputs:
+      upload_cube:
+        description: 'Create and upload cube'
+        required: true
+        default: 'true'
+      server_url:
+        description: 'Server URL if override needed'
+        required: false
+      guid:
+        description: 'GUID of the cube if already uploaded'
+        required: false
+      account_key:
+        description: 'AZURE_STORAGE_ACCOUNT_KEY override if needed'
+        required: false
+      ilines:
+        description: 'For created cube: ilines number'
+        required: false
+        default: '4000'
+      xlines:
+        description: 'For created cube: xlines number'
+        required: false
+        default: '3000'
+      samples:
+        description: 'For created cube: samples number'
+        required: false
+        default: '1500'
+
   #schedule:
     # Run at 15.52 UTC every day
   #  - cron: '52 15 * * *'
@@ -10,6 +37,7 @@ jobs:
   before_performance_tests:
     name: Before All Performance tests on Azure
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule' ||  github.event.inputs.upload_cube == 'true'
     environment: Test
 
     env:
@@ -34,7 +62,7 @@ jobs:
           docker build -f tests/performance/Dockerfile -t $tag .
           docker push $tag
 
-  performance_tests:
+  performance_tests_setup:
     # Note: job uses default resources. Setup from the main resource is used
     #
     # Service Principal should have access to Resource group and "push" privileges to the container registry
@@ -49,25 +77,23 @@ jobs:
     # SIGN_KEY : string used for secure exchange of information between services
     name: Performance tests on Azure
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule' ||  github.event.inputs.upload_cube == 'true'
     environment: Test
     needs: [before_performance_tests]
 
+    outputs:
+      output1: ${{ steps.retrieve_guid.outputs.guid }}
+      output2: ${{ steps.retrieve_server_url.outputs.server_url }}
+
     env:
       ENVIRONMENT: test
-    strategy:
-      max-parallel: 1
-      matrix:
-        include:
-          - ilines: 4000
-            xlines: 3000
-            samples: 1500
-            duration: "2m"
-            vus: 1
-          # - ilines: 4000
-          #   xlines: 3000
-          #   samples: 1500
-          #   duration: "10m"
-          #   vus: 5
+    # strategy:
+    #   max-parallel: 1
+    #   matrix:
+    #     include:
+    #       - ilines: 40
+    #         xlines: 30
+    #         samples: 1500
 
     steps:
       - uses: actions/checkout@v2
@@ -78,13 +104,16 @@ jobs:
 
       - name: Set infrastructure parameters
         run: |
+          echo "ILINES=${{ github.event.inputs.ilines:-4 }}" >> $GITHUB_ENV
+          echo "XLINES=${{ github.event.inputs.xlines:-3 }}" >> $GITHUB_ENV
+          echo "SAMPLES=${{ github.event.inputs.samples:-1500 }}" >> $GITHUB_ENV
+
           echo "CONTAINER_REGISTRY=${{ secrets.SETUP_PREFIX }}0containerRegistry.azurecr.io" >> $GITHUB_ENV
           echo "CREATE_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-create-file-job" >> $GITHUB_ENV
           echo "UPLOAD_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-upload-file-job" >> $GITHUB_ENV
           echo "CLEANUP_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-cleanup-container-job" >> $GITHUB_ENV
-          echo "STORAGE_URL=https://${{ secrets.SETUP_PREFIX }}0storage.blob.core.windows.net" >> $GITHUB_ENV
           echo "RANDOM_VALUE"=$RANDOM >> $GITHUB_ENV
-          echo "FILENAME=${{ matrix.ilines }}-x-${{ matrix.xlines }}-x-${{ matrix.samples }}.segy" >> $GITHUB_ENV
+          echo "FILENAME=${{ env.ILINES }}-x-${{ env.XLINES }}-x-${{ env.SAMPLES }}.segy" >> $GITHUB_ENV
           echo "CREATE_DEPLOYMENT_NAME=performanceTests-createFile" >> $GITHUB_ENV
           echo "SAVED_FILE_STORAGE=onespeedytest" >> $GITHUB_ENV
 
@@ -95,7 +124,7 @@ jobs:
           deploymentName: ${{ env.CREATE_DEPLOYMENT_NAME }}
           resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
           template: tests/performance/create.bicep
-          parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }} segyStorageResourceName=${{ env.SAVED_FILE_STORAGE }} ilinesNumber=${{ matrix.ilines }} xlinesNumber=${{ matrix.xlines }} samplesNumber=${{ matrix.samples }}
+          parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }} segyStorageResourceName=${{ env.SAVED_FILE_STORAGE }} ilinesNumber=${{ env.ILINES }} xlinesNumber=${{ env.XLINES }} samplesNumber=${{ env.SAMPLES }}
 
       - name: Wait until file is created
         timeout-minutes: 60
@@ -127,6 +156,7 @@ jobs:
 # do something here - if guid is not guid, too much stuff fails.
       - name: Print upload logs
         if: always()
+        id: retrieve_guid
         run: |
           # problem: if something is wrong, this will print sas token. Token still might be valid. So maybe logs shouldn't be printed?
           output=$(az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.UPLOAD_CONTAINER_INSTANCE }} )
@@ -137,8 +167,10 @@ jobs:
             exit 1
           fi
           echo "GUID=$guid" >> $GITHUB_ENV
+          run: echo "::set-output name=guid::$guid"
 
       - name: Set server URL
+        id: retrieve_server_url
         run: |
           serverURL=$(az deployment group show \
             -g ${{ secrets.RESOURCE_GROUP }} \
@@ -147,13 +179,55 @@ jobs:
             -o tsv
           )
           echo "SERVER_URL=$serverURL" >> $GITHUB_ENV
+          run: echo "::set-output name=server_url::$server_URL"
+
+  performance_tests:
+    # Note: job uses default resources. Setup from the main resource is used
+
+    # The following secrets are required:
+    # SETUP_PREFIX: prefix for all created resources
+    # STORAGE_ACCOUNT_KEY : key used to access storage
+    name: Performance tests on Azure
+    runs-on: ubuntu-latest
+    environment: Test
+    needs: [performance_tests_setup]
+
+    env:
+      ENVIRONMENT: test
+    strategy:
+      max-parallel: 1
+      matrix:
+        include:
+          - duration: "2m"
+            vus: 1
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set missing parameters
+        if: github.event_name == 'schedule' &&  github.event.inputs.upload_cube == 'false'
+        run: |
+          echo "STORAGE_URL=https://${{ secrets.SETUP_PREFIX }}0storage.blob.core.windows.net" >> $GITHUB_ENV
+          echo "GUID=${{ github.event.inputs.guid }}" >> $GITHUB_ENV
+          echo "SERVER_URL=${{ github.event.inputs.server_url }}" >> $GITHUB_ENV
+          echo "STORAGE_ACCOUNT_KEY=${{ github.event.inputs.account_key:-${{ secrets.STORAGE_ACCOUNT_KEY }} }}" >> $GITHUB_ENV
+          run: echo "::add-mask::$STORAGE_ACCOUNT_KEY"
+
+      - name: Set missing parameters
+        if: github.event_name != 'schedule' || github.event.inputs.upload_cube == 'true'
+        run: |
+          echo "STORAGE_URL=https://${{ secrets.SETUP_PREFIX }}0storage.blob.core.windows.net" >> $GITHUB_ENV
+          echo "GUID=${{needs.performance_tests_setup.outputs.guid}}" >> $GITHUB_ENV
+          echo "SERVER_URL=${{needs.performance_tests_setup.outputs.server_url}}" >> $GITHUB_ENV
+          echo "STORAGE_ACCOUNT_KEY=$${{ secrets.STORAGE_ACCOUNT_KEY }}" >> $GITHUB_ENV
+          run: echo "::add-mask::$STORAGE_ACCOUNT_KEY"
 
       - name: Run performance tests
         env:
           SERVER_URL: ${{ env.SERVER_URL }}
           STORAGE_LOCATION: ${{ env.STORAGE_URL }}
           GUID: ${{ env.GUID }}
-          AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
+          AZURE_STORAGE_ACCOUNT_KEY: ${{ env.STORAGE_ACCOUNT_KEY }}
         run: |
           tag=performance
           echo "TEST_IMAGE_TAG=$tag" >> $GITHUB_ENV
