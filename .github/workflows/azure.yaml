@@ -189,6 +189,7 @@ jobs:
     # STORAGE_ACCOUNT_KEY : key used to access storage
     name: Performance tests on Azure
     runs-on: ubuntu-latest
+    if: always()
     environment: Test
     needs: [performance_tests_setup]
 
