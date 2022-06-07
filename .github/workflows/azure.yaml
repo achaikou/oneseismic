@@ -13,9 +13,6 @@ on:
       guid:
         description: 'GUID of the cube if already uploaded'
         required: false
-      account_key:
-        description: 'AZURE_STORAGE_ACCOUNT_KEY override if needed'
-        required: false
       ilines:
         description: 'For created cube: ilines number'
         required: false
@@ -40,8 +37,6 @@ jobs:
     if: github.event_name != 'workflow_dispatch' ||  github.event.inputs.upload_cube == 'true'
     environment: Test
 
-    env:
-      ENVIRONMENT: test
     steps:
       - uses: actions/checkout@v2
 
@@ -85,8 +80,6 @@ jobs:
       output1: ${{ steps.retrieve_guid.outputs.guid }}
       output2: ${{ steps.retrieve_server_url.outputs.server_url }}
 
-    env:
-      ENVIRONMENT: test
     # strategy:
     #   max-parallel: 1
     #   matrix:
@@ -190,11 +183,9 @@ jobs:
     name: Performance tests on Azure
     runs-on: ubuntu-latest
     if: always()
-    environment: Test
+    environment: REALDEV
     needs: [performance_tests_setup]
 
-    env:
-      ENVIRONMENT: test
     strategy:
       max-parallel: 1
       matrix:
@@ -205,18 +196,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Mask stuf
-        run: |
-          run: echo "::add-mask::$STORAGE_ACCOUNT_KEY"
-
       - name: Set missing parameters
         if: github.event_name == 'workflow_dispatch' &&  github.event.inputs.upload_cube == 'false'
         run: |
-          echo "STORAGE_URL=https://${{ secrets.SETUP_PREFIX }}0storage.blob.core.windows.net" >> $GITHUB_ENV
           echo "GUID=${{ github.event.inputs.guid }}" >> $GITHUB_ENV
           echo "SERVER_URL=${{ github.event.inputs.server_url }}" >> $GITHUB_ENV
-          echo "STORAGE_ACCOUNT_KEY=${${{ github.event.inputs.account_key }}:-${{ secrets.STORAGE_ACCOUNT_KEY }}}" >> $GITHUB_ENV
-          echo "::add-mask::$STORAGE_ACCOUNT_KEY"
 
       - name: Set missing parameters
         if: github.event_name != 'workflow_dispatch' || github.event.inputs.upload_cube == 'true'
@@ -224,15 +208,13 @@ jobs:
           echo "STORAGE_URL=https://${{ secrets.SETUP_PREFIX }}0storage.blob.core.windows.net" >> $GITHUB_ENV
           echo "GUID=${{needs.performance_tests_setup.outputs.guid}}" >> $GITHUB_ENV
           echo "SERVER_URL=${{needs.performance_tests_setup.outputs.server_url}}" >> $GITHUB_ENV
-          echo "STORAGE_ACCOUNT_KEY=${{ secrets.STORAGE_ACCOUNT_KEY }}" >> $GITHUB_ENV
-          echo "::add-mask::$STORAGE_ACCOUNT_KEY"
 
       - name: Run performance tests
         env:
           SERVER_URL: ${{ env.SERVER_URL }}
           STORAGE_LOCATION: ${{ env.STORAGE_URL }}
           GUID: ${{ env.GUID }}
-          AZURE_STORAGE_ACCOUNT_KEY: ${{ env.STORAGE_ACCOUNT_KEY }}
+          AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
         run: |
           tag=performance
           echo "TEST_IMAGE_TAG=$tag" >> $GITHUB_ENV
