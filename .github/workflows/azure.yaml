@@ -7,9 +7,6 @@ on:
         description: 'Create and upload cube'
         required: true
         default: 'false'
-      server_url:
-        description: 'Server URL if override needed'
-        required: false
       guid:
         description: 'GUID of the cube if already uploaded'
         required: false
@@ -196,11 +193,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # should server_url be a secret
       - name: Set missing parameters
         if: github.event_name == 'workflow_dispatch' &&  github.event.inputs.upload_cube == 'false'
         run: |
+          echo "STORAGE_URL=${{ secrets.STORAGE_URL }}" >> $GITHUB_ENV
           echo "GUID=${{ github.event.inputs.guid }}" >> $GITHUB_ENV
-          echo "SERVER_URL=${{ github.event.inputs.server_url }}" >> $GITHUB_ENV
+          echo "SERVER_URL=${{ secrets.SERVER_URL }}" >> $GITHUB_ENV
 
       - name: Set missing parameters
         if: github.event_name != 'workflow_dispatch' || github.event.inputs.upload_cube == 'true'
