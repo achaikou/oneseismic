@@ -37,7 +37,7 @@ jobs:
   before_performance_tests:
     name: Before All Performance tests on Azure
     runs-on: ubuntu-latest
-    if: github.event_name != 'schedule' ||  github.event.inputs.upload_cube == 'true'
+    if: github.event_name != 'workflow_dispatch' ||  github.event.inputs.upload_cube == 'true'
     environment: Test
 
     env:
@@ -77,7 +77,7 @@ jobs:
     # SIGN_KEY : string used for secure exchange of information between services
     name: Performance tests on Azure
     runs-on: ubuntu-latest
-    if: github.event_name != 'schedule' ||  github.event.inputs.upload_cube == 'true'
+    if: github.event_name != 'workflow_dispatch' ||  github.event.inputs.upload_cube == 'true'
     environment: Test
     needs: [before_performance_tests]
 
@@ -205,7 +205,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set missing parameters
-        if: github.event_name == 'schedule' &&  github.event.inputs.upload_cube == 'false'
+        if: github.event_name == 'workflow_dispatch' &&  github.event.inputs.upload_cube == 'false'
         run: |
           echo "STORAGE_URL=https://${{ secrets.SETUP_PREFIX }}0storage.blob.core.windows.net" >> $GITHUB_ENV
           echo "GUID=${{ github.event.inputs.guid }}" >> $GITHUB_ENV
@@ -215,7 +215,7 @@ jobs:
           run: echo "::add-mask::$STORAGE_ACCOUNT_KEY"
 
       - name: Set missing parameters
-        if: github.event_name != 'schedule' || github.event.inputs.upload_cube == 'true'
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.upload_cube == 'true'
         run: |
           echo "STORAGE_URL=https://${{ secrets.SETUP_PREFIX }}0storage.blob.core.windows.net" >> $GITHUB_ENV
           echo "GUID=${{needs.performance_tests_setup.outputs.guid}}" >> $GITHUB_ENV
