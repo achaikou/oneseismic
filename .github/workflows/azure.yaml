@@ -215,6 +215,9 @@ jobs:
           STORAGE_LOCATION: ${{ env.STORAGE_URL }}
           GUID: ${{ env.GUID }}
           AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
+          ILINES: 100
+          XLINES: 100
+          SAMPLES: 100
         run: |
           tag=performance
           echo "TEST_IMAGE_TAG=$tag" >> $GITHUB_ENV
@@ -224,6 +227,9 @@ jobs:
             -e STORAGE_LOCATION \
             -e SERVER_URL \
             -e GUID \
+            -e ILINES \
+            -e XLINES \
+            -e SAMPLES \
             -v $(pwd)/out:/out \
             $tag \
             /bin/sh -c 'python ./tests/performance/performance.py ${{ matrix.filepath }}'
