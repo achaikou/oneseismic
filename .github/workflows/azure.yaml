@@ -226,7 +226,7 @@ jobs:
             -e GUID \
             -v $(pwd)/out:/out \
             $tag \
-            /bin/sh -c 'python ./tests/performance/performance.py ${{ matrix.vus }} ${{ matrix.duration }}'
+            /bin/sh -c 'python ./tests/performance/performance.py ${{ matrix.filepath }}'
 
       - name: Print stderr
         if: always()
@@ -238,10 +238,10 @@ jobs:
         run: |
           cat out/stdout.txt
 
-      - name: Print summary
-        if: always()
-        run: |
-          cat out/summary.json
+      # - name: Print summary
+      #   if: always()
+      #   run: |
+      #     cat out/summary.json
 
       # # these two always as well. And continue on failure
       # - name: Cleanup created files
