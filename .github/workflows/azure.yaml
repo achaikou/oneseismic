@@ -188,9 +188,9 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - filepath: "/tests/performance/constant-slice.js"
-          - filepath: "/tests/performance/curtain.js"
-          - filepath: "/tests/performance/various.js"
+          - filepath: "/tests/performance/script-constant-slice.js"
+          - filepath: "/tests/performance/script-random-curtain.js"
+          - filepath: "/tests/performance/script-various-requests.js"
 
     steps:
       - uses: actions/checkout@v2
@@ -239,21 +239,25 @@ jobs:
 
       - name: Print stderr
         if: always()
+        continue-on-error: true
         run: |
           cat out/stderr.txt
 
       - name: Print stdout
         if: always()
+        continue-on-error: true
         run: |
           cat out/stdout.txt
 
       - name: Print logs
         if: always()
+        continue-on-error: true
         run: |
           cat out/loadtest.log
 
       - name: Print summary
         if: always()
+        continue-on-error: true
         run: |
           cat out/summary.json
 
