@@ -15,6 +15,7 @@ export function thresholds(defaultMed, defaultMax) {
   let maxTime = __ENV.MAXTIME;
   maxTime = maxTime ? maxTime : defaultMax
 
+  // note: if med limit fails, run fails, but threshold shows green
   let thresholds = basicThresholds
   thresholds['iteration_duration'] = [`med < ${medTime}`, `max < ${maxTime}`]
   return thresholds
