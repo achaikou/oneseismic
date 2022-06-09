@@ -7,7 +7,7 @@ export const options = {
     curtain: {
       executor: "constant-vus",
       vus: 10,
-      duration: "1m",
+      duration: "2m",
       exec: "randomCurtainRequest",
     },
   },

@@ -9,9 +9,14 @@ const basicThresholds = {
   "checks{general:lost calls}": [{ threshold: "rate == 1.00" }],
 };
 
-export function thresholds(med, max) {
+export function thresholds(defaultMed, defaultMax) {
+  let medTime = __ENV.MEDTIME;
+  medTime = medTime ? medTime : defaultMed
+  let maxTime = __ENV.MAXTIME;
+  maxTime = maxTime ? maxTime : defaultMax
+
   let thresholds = basicThresholds
-  thresholds['iteration_duration'] = [`med < ${med}`, `max < ${max}`]
+  thresholds['iteration_duration'] = [`med < ${medTime}`, `max < ${maxTime}`]
   return thresholds
 }
 
