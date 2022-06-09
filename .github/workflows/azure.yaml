@@ -189,6 +189,7 @@ jobs:
       matrix:
         include:
           - filepath: "/tests/performance/script-constant-slice.js"
+            medtime: 8000
           - filepath: "/tests/performance/script-random-curtain.js"
           - filepath: "/tests/performance/script-various-requests.js"
 
@@ -220,6 +221,7 @@ jobs:
           ILINES: 100
           XLINES: 100
           SAMPLES: 100
+          MEDTIME: ${{ matrix.medtime }}
         run: |
           tag=performance
           echo "TEST_IMAGE_TAG=$tag" >> $GITHUB_ENV
@@ -233,6 +235,8 @@ jobs:
             -e XLINES \
             -e SAMPLES \
             -e LOGPATH \
+            -e MEDTIME \
+            -e MAXTIME \
             -v $(pwd)/out:/out \
             $tag \
             /bin/sh -c 'python ./tests/performance/performance.py ${{ matrix.filepath }}'
