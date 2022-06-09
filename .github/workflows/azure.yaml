@@ -184,6 +184,7 @@ jobs:
     needs: [performance_tests_setup]
 
     strategy:
+      fail-fast: false
       max-parallel: 1
       matrix:
         include:
@@ -215,6 +216,7 @@ jobs:
           STORAGE_LOCATION: ${{ env.STORAGE_URL }}
           GUID: ${{ env.GUID }}
           AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
+          LOGPATH: "/out"
           ILINES: 100
           XLINES: 100
           SAMPLES: 100
@@ -230,6 +232,7 @@ jobs:
             -e ILINES \
             -e XLINES \
             -e SAMPLES \
+            -e LOGPATH \
             -v $(pwd)/out:/out \
             $tag \
             /bin/sh -c 'python ./tests/performance/performance.py ${{ matrix.filepath }}'
@@ -244,10 +247,15 @@ jobs:
         run: |
           cat out/stdout.txt
 
-      # - name: Print summary
-      #   if: always()
-      #   run: |
-      #     cat out/summary.json
+      - name: Print logs
+        if: always()
+        run: |
+          cat out/loadtest.log
+
+      - name: Print summary
+        if: always()
+        run: |
+          cat out/summary.json
 
       # # these two always as well. And continue on failure
       # - name: Cleanup created files

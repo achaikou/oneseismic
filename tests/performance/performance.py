@@ -9,14 +9,18 @@ def runPerformanceTests(filepath):
     key = os.environ["AZURE_STORAGE_ACCOUNT_KEY"]
     sas = generate_container_signature(account_name=account_name, container_name=guid, account_key=key)
     os.environ["SAS"] = sas
+    logpath = os.environ["LOGPATH"]
+    logname = "{}/loadtest.log".format(logpath)
+    stdoutname = "{}/stdout.txt".format(logpath)
+    stderrname = "{}/stderr.txt".format(logpath)
 
     # "--env scenario=contacts, "
     #performance = subprocess.run(["k6", "run", "/tests/performance/script.js", "--vus", vus, "--duration", duration], encoding="utf-8", capture_output=True)
-    performance = subprocess.run(["k6", "run", filepath], encoding="utf-8", capture_output=True)
+    performance = subprocess.run(["k6", "run", "--console-output", logname, filepath], encoding="utf-8", capture_output=True)
 
-    with open("/out/stdout.txt", "w") as text_file:
+    with open(stdoutname, "w") as text_file:
         text_file.write(performance.stdout)
-    with open("/out/stderr.txt", "w") as text_file:
+    with open(stderrname, "w") as text_file:
         text_file.write(performance.stderr)
 
     if performance.returncode:

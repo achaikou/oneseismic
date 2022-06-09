@@ -5,49 +5,56 @@ export function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
 
-export const basicThresholds = {
-  "checks{responseStatusChecks:query}": [{ threshold: "rate == 1.00" }],
-  "checks{responseStatusChecks:status}": [{ threshold: "rate == 1.00" }],
-  "checks{responseStatusChecks:result}": [{ threshold: "rate == 1.00" }],
-  "checks{responseDataChecks:query}": [{ threshold: "rate == 1.00" }],
-  "checks{responseDataChecks:status}": [{ threshold: "rate == 1.00" }],
-};
+export function runRequest(request) {
+  const promise = request();
+  waitForOperationFinished(promise);
+  retrieveResult(promise);
+  sleep(0.1);
+}
 
 export function sendRequest(query) {
   const server = __ENV.SERVER_URL;
   const auth = __ENV.SAS;
 
   const queryUrl = `${server}/graphql?${auth}`;
-  const res = http.post(queryUrl, JSON.stringify({ query: query }), {});
+  const body = JSON.stringify({ query: query });
+  const options = {
+    responseType: "text",
+  };
+  const res = http.post(queryUrl, body, options);
 
   const queryResStatusCheck = check(
     res,
     {
       "query response: status must be 200": (r) => r.status === 200,
     },
-    { responseStatusChecks: "query" }
+    { "status checks": "query" }
   );
   if (!queryResStatusCheck) {
     fail(`Wrong 'query' response status: ${res.status}`);
   }
 
-  const queryResDataCheck = check(
-    res,
-    {
-      "query response: no errors returned": (r) =>
-        !r.json().hasOwnProperty("errors"),
-      //'query response: there is cube data': (r) => r.json()['data'].hasOwnProperty('cube'),
-    },
-    { responseDataChecks: "query" }
-  );
-  if (!queryResDataCheck) {
-    fail(`Wrong 'query' response data: ${JSON.stringify(res.json())}`);
+  const data = res.json().data;
+  if (!data) {
+    fail(`Wrong 'query' response: ${JSON.stringify(res.json())}`);
   }
 
-  return JSON.parse(res.body);
+  const queryResDataCheck = check(
+    data,
+    {
+      "query response: no errors returned": (d) => !d.hasOwnProperty("errors"),
+      "query response: there is cube data": (d) => d.hasOwnProperty("cube"),
+    },
+    { "data checks": "query" }
+  );
+  if (!queryResDataCheck) {
+    fail(`Wrong 'query' response data: ${JSON.stringify(data)}`);
+  }
+
+  return data;
 }
 
-export function waitForOperationFinished(promise) {
+function waitForOperationFinished(promise) {
   const server = __ENV.SERVER_URL;
 
   const requestURL = promise.url;
@@ -58,50 +65,69 @@ export function waitForOperationFinished(promise) {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    responseType: "text",
   };
 
-  var fetchStatus = "";
-  while (true) {
+  const SLEEP_TIME = 0.5; // seconds
+  const CONSIDER_LOST_AFTER = 40; // seconds
+  const MAX_ATTEMPTS = Math.ceil(CONSIDER_LOST_AFTER / SLEEP_TIME);
+
+  let attempts = 0;
+
+  while (attempts != MAX_ATTEMPTS) {
     const res = http.get(statusURL, options);
 
     const statusResStatusCheck = check(
       res,
       {
         "status response: status must be 200/202": (r) =>
-          r.status === 200 || r.status == 202,
+          r.status === 200 || r.status === 202,
       },
-      { responseStatusChecks: "status" }
+      { "status checks": "waiting for finished status" }
     );
     if (!statusResStatusCheck) {
       fail(`Wrong res status ${res.status}`);
     }
 
+    const data = res.json();
+
     const queryResDataCheck = check(
-      res,
+      data,
       {
-        "status response: fetch status is present": (r) =>
-          r.json().hasOwnProperty("status"),
+        "status response: fetch status is present": (d) =>
+          d.hasOwnProperty("status"),
       },
-      { responseDataChecks: "status" }
+      { "data checks": "waiting for finished status" }
     );
     if (!queryResDataCheck) {
-      fail(`Wrong 'query' response data: ${JSON.stringify(res.json())}`);
+      fail(`Wrong 'query' response data: ${JSON.stringify(data)}`);
     }
 
-    fetchStatus = JSON.parse(res.body).status;
-    console.log(`Current progress is ${JSON.parse(res.body).progress}`);
+    console.log(`Current progress is ${data.progress}`);
 
-    if (fetchStatus === "finished") {
+    if (data.status === "finished") {
       break;
     } else {
       // Result.Status (code in go) indicates there is a bug in status if we first ask for result too early?
       // unclear. Real error is due to pod restart
-      sleep(0.5);
+      sleep(SLEEP_TIME);
+      ++attempts;
     }
+  }
+
+  const lostCallCheck = check(
+    attempts,
+    {
+      "status response: call must not be stuck in 'working' state": (a) => a != MAX_ATTEMPTS,
+    },
+    { general: "lost calls" }
+  );
+  if (!lostCallCheck) {
+    fail(`Call is not completed in ${CONSIDER_LOST_AFTER}`);
   }
 }
 
-export function retrieveResult(promise) {
+function retrieveResult(promise) {
   const server = __ENV.SERVER_URL;
 
   const requestURL = promise.url;
@@ -111,6 +137,7 @@ export function retrieveResult(promise) {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    responseType: "none",
   };
 
   const dataURL = `${server}/${requestURL}`;
@@ -120,7 +147,7 @@ export function retrieveResult(promise) {
     {
       "result response: status must be 200": (r) => r.status === 200,
     },
-    { responseStatusChecks: "result" }
+    { "status checks": "result" }
   );
   if (!dataResStatusCheck) {
     fail(`Wrong 'result' response status: ${res.status}`);

@@ -12,7 +12,7 @@ export function sendSliceRequest(guid, dimension, index) {
   console.log(`Requesting slice by index ${index} in dimension ${dimension}`);
 
   const queryRes = sendRequest(query);
-  const promise = queryRes.data.cube.sliceByIndex;
+  const promise = queryRes.cube.sliceByIndex;
   if (!promise) {
     exec.test.abort("Empty promise returned");
   }

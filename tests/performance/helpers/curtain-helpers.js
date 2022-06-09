@@ -14,7 +14,7 @@ export function sendCurtainRequest(guid, coords) {
   console.log(`Requesting curtain ${coords}`);
 
   const queryRes = sendRequest(query);
-  const promise = queryRes.data.cube.curtainByIndex;
+  const promise = queryRes.cube.curtainByIndex;
   if (!promise) {
     exec.test.abort("Empty promise returned");
   }
