@@ -29,7 +29,6 @@ jobs:
     environment: Test
     env:
       ENVIRONMENT: test
-      REVISION_ID: ${{ github.sha }}
       DEPLOYMENT_NAME: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v2
@@ -37,7 +36,7 @@ jobs:
       - name: Set needed parameters
         run: |
           echo "CONTAINER_REGISTRY=${{ secrets.SETUP_PREFIX }}0containerRegistry.azurecr.io" >> $GITHUB_ENV
-          echo "UNIQUE_REVISION_ID"=${{ env.REVISION_ID }}-$RANDOM >> $GITHUB_ENV
+          echo "REVISION_ID"=${{ github.sha }}$RANDOM >> $GITHUB_ENV
 
       - name: Login to Docker Registry with Service Principal
         uses: docker/login-action@v1
@@ -46,13 +45,11 @@ jobs:
           username: ${{ secrets.AZURE_CLIENT_ID }}
           password: ${{ secrets.AZURE_CLIENT_SECRET }}
 
-      - name: Build and push server code with Docker if image doesn't exist
+      - name: Build and push server code with Docker
         run: |
-          image=${{ env.CONTAINER_REGISTRY }}/apps/oneseismic:$REVISION_ID
-          if ! docker manifest inspect $image > /dev/null ; then
-            docker build -t $image .
-            docker push $image
-          fi
+          image=${{ env.CONTAINER_REGISTRY }}/apps/oneseismic:${{ env.REVISION_ID }}
+          docker build -t $image .
+          docker push $image
 
       - name: Login to Azure with Service Principal
         uses: azure/login@v1
@@ -65,7 +62,7 @@ jobs:
           deploymentName: ${{ env.DEPLOYMENT_NAME }}
           resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
           template: deploy/main.bicep
-          parameters: environment=${{ env.ENVIRONMENT }} setupPrefix=${{ secrets.SETUP_PREFIX }} revisionId=${{ env.UNIQUE_REVISION_ID }} signKey=${{ secrets.SIGN_KEY }}
+          parameters: environment=${{ env.ENVIRONMENT }} setupPrefix=${{ secrets.SETUP_PREFIX }} revisionId=${{ env.REVISION_ID }} signKey=${{ secrets.SIGN_KEY }}
 
       - name: Set missing test parameters
         run: |
