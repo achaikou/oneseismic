@@ -29,14 +29,15 @@ jobs:
     environment: Test
     env:
       ENVIRONMENT: test
-      REVISION_ID: ${{ github.sha }} # or "latest"
+      REVISION_ID: ${{ github.sha }}
       DEPLOYMENT_NAME: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set missing docker parameters
+      - name: Set needed parameters
         run: |
           echo "CONTAINER_REGISTRY=${{ secrets.SETUP_PREFIX }}0containerRegistry.azurecr.io" >> $GITHUB_ENV
+          echo "UNIQUE_REVISION_ID"=${{ env.REVISION_ID }}-$RANDOM >> $GITHUB_ENV
 
       - name: Login to Docker Registry with Service Principal
         uses: docker/login-action@v1
@@ -58,42 +59,13 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Activate revision if it already exists
-        run: |
-          fetch_app_name=${{ secrets.SETUP_PREFIX }}-fetch
-          nginx_app_name=${{ secrets.SETUP_PREFIX }}-nginx
-          fetch_revision=$fetch_app_name--${{ env.REVISION_ID }}
-          nginx_revision=$nginx_app_name--${{ env.REVISION_ID }}
-          fetch_exists=false
-          nginx_exists=false
-
-          az extension add --name containerapp
-
-          if az containerapp revision activate -n $fetch_app_name -g ${{ secrets.RESOURCE_GROUP }} --revision $fetch_revision > /dev/null ; then
-            echo "Fetch revision exists and is activated"
-            fetch_exists=true
-          fi
-
-          if az containerapp revision activate -n $nginx_app_name -g ${{ secrets.RESOURCE_GROUP }} --revision $nginx_revision > /dev/null ; then
-            echo "Nginx revision exists and is activated"
-            nginx_exists=true
-          fi
-
-          if [[ $fetch_exists != $nginx_exists ]] ; then
-            echo "Unexpected situation: fetch and nginx apps have different status"
-            (exit 1)
-          fi
-
-          echo "REVISION_ALREADY_EXISTS=$fetch_exists" >> $GITHUB_ENV
-
-      - name: Deploy server code if not already deployed
-        if: ${{ env.REVISION_ALREADY_EXISTS == 'false' }}
+      - name: Deploy server code
         uses: azure/arm-deploy@v1
         with:
           deploymentName: ${{ env.DEPLOYMENT_NAME }}
           resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
           template: deploy/main.bicep
-          parameters: environment=${{ env.ENVIRONMENT }} setupPrefix=${{ secrets.SETUP_PREFIX }} revisionId=${{ env.REVISION_ID }} signKey=${{ secrets.SIGN_KEY }}
+          parameters: environment=${{ env.ENVIRONMENT }} setupPrefix=${{ secrets.SETUP_PREFIX }} revisionId=${{ env.UNIQUE_REVISION_ID }} signKey=${{ secrets.SIGN_KEY }}
 
       - name: Set missing test parameters
         run: |

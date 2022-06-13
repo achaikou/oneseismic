@@ -103,12 +103,6 @@ resource nginxContainerApp 'Microsoft.App/containerApps@2022-01-01-preview' = {
       ingress: {
         external: true
         targetPort: 8080
-        traffic: [
-          {
-            weight: 100
-            revisionName: '${nginxAppName}--${revisionId}'
-          }
-        ]
       }
       secrets: [
         {
