@@ -79,7 +79,6 @@ jobs:
 
           if az containerapp revision activate -n $nginx_app_name -g ${{ secrets.RESOURCE_GROUP }} --revision $nginx_revision > /dev/null ; then
             echo "Nginx revision exists and is activated"
-            az containerapp ingress traffic set -n $nginx_app_name -g ${{ secrets.RESOURCE_GROUP }} --revision-weight $nginx_revision=100
             nginx_exists=true
           fi
 
