@@ -11,6 +11,7 @@ ENV PATH "$PATH:k6"
 
 
 COPY ./tests/openvds /tests/openvds
+COPY ./tests/data /tests/data
 
 RUN python -m pip install -r /tests/openvds/requirements-dev.txt
 ENV UPLOAD_WITH_PYTHON python
