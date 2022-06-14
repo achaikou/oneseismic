@@ -1,0 +1,7 @@
+azure-storage-blob
+azure-identity
+importlib-metadata >= '1.0'; python_version < '3.8'
+numpy
+requests
+flask
+openvds

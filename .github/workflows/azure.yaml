@@ -10,6 +10,10 @@ on:
       guid:
         description: 'GUID of the cube if already uploaded'
         required: false
+      container:
+        description: 'Container of the cube'
+        required: false
+        default: 'test'
       ilines:
         description: 'For created cube: ilines number'
         required: false
@@ -28,31 +32,31 @@ on:
   #  - cron: '52 15 * * *'
 
 jobs:
-  before_performance_tests:
-    name: Before All Performance tests on Azure
-    runs-on: ubuntu-latest
-    if: github.event_name != 'workflow_dispatch' ||  github.event.inputs.upload_cube == 'true'
-    environment: Test
+  # before_performance_tests:
+  #   name: Before All Performance tests on Azure
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name != 'workflow_dispatch' ||  github.event.inputs.upload_cube == 'true'
+  #   environment: Test
 
-    steps:
-      - uses: actions/checkout@v2
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Set infrastructure parameters
-        run: |
-          echo "CONTAINER_REGISTRY=${{ secrets.SETUP_PREFIX }}0containerRegistry.azurecr.io" >> $GITHUB_ENV
+  #     - name: Set infrastructure parameters
+  #       run: |
+  #         echo "CONTAINER_REGISTRY=${{ secrets.SETUP_PREFIX }}0containerRegistry.azurecr.io" >> $GITHUB_ENV
 
-      - name: Login to Docker Registry with Service Principal
-        uses: docker/login-action@v1
-        with:
-          registry: ${{ env.CONTAINER_REGISTRY }}
-          username: ${{ secrets.AZURE_CLIENT_ID }}
-          password: ${{ secrets.AZURE_CLIENT_SECRET }}
+  #     - name: Login to Docker Registry with Service Principal
+  #       uses: docker/login-action@v1
+  #       with:
+  #         registry: ${{ env.CONTAINER_REGISTRY }}
+  #         username: ${{ secrets.AZURE_CLIENT_ID }}
+  #         password: ${{ secrets.AZURE_CLIENT_SECRET }}
 
-      - name: Build and push performance image to Docker
-        run: |
-          tag=${{ env.CONTAINER_REGISTRY }}/playground/performance
-          docker build -f tests/performance/Dockerfile -t $tag .
-          docker push $tag
+  #     - name: Build and push performance image to Docker
+  #       run: |
+  #         tag=${{ env.CONTAINER_REGISTRY }}/playground/performance
+  #         docker build -f tests/performance/Dockerfile -t $tag .
+  #         docker push $tag
 
   performance_tests_setup:
     # Note: job uses default resources. Setup from the main resource is used
@@ -71,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'workflow_dispatch' ||  github.event.inputs.upload_cube == 'true'
     environment: Test
-    needs: [before_performance_tests]
+    # needs: [before_performance_tests]
 
     outputs:
       output1: ${{ steps.retrieve_guid.outputs.guid }}
@@ -180,7 +184,7 @@ jobs:
     name: Performance tests on Azure
     runs-on: ubuntu-latest
     if: always()
-    environment: REALDEV
+    environment: openvds
     needs: [performance_tests_setup]
 
     strategy:
@@ -188,11 +192,10 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - filepath: "/tests/performance/script-constant-slice.js"
+          - filepath: "/tests/openvds/script-constant-slice.js"
             medtime: 8000
             maxtime: 16000
-          - filepath: "/tests/performance/script-random-curtain.js"
-          - filepath: "/tests/performance/script-various-requests.js"
+          - filepath: "/tests/openvds/script-various-requests.js"
 
     steps:
       - uses: actions/checkout@v2
@@ -203,6 +206,7 @@ jobs:
         run: |
           echo "STORAGE_URL=${{ secrets.STORAGE_URL }}" >> $GITHUB_ENV
           echo "GUID=${{ github.event.inputs.guid }}" >> $GITHUB_ENV
+          echo "CONTAINER=${{ github.event.inputs.container }}" >> $GITHUB_ENV
           echo "SERVER_URL=${{ secrets.SERVER_URL }}" >> $GITHUB_ENV
 
       - name: Set missing parameters
@@ -217,6 +221,7 @@ jobs:
           SERVER_URL: ${{ env.SERVER_URL }}
           STORAGE_LOCATION: ${{ env.STORAGE_URL }}
           GUID: ${{ env.GUID }}
+          CONTAINER: ${{ env.CONTAINER }}
           AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
           LOGPATH: "/out"
           ILINES: 100
@@ -226,12 +231,13 @@ jobs:
         run: |
           tag=performance
           echo "TEST_IMAGE_TAG=$tag" >> $GITHUB_ENV
-          docker build -f tests/performance/Dockerfile -t $tag .
+          docker build -f tests/openvds/Dockerfile -t $tag .
           docker run \
             -e AZURE_STORAGE_ACCOUNT_KEY \
             -e STORAGE_LOCATION \
             -e SERVER_URL \
             -e GUID \
+            -e CONTAINER \
             -e ILINES \
             -e XLINES \
             -e SAMPLES \
@@ -240,7 +246,7 @@ jobs:
             -e MAXTIME \
             -v $(pwd)/out:/out \
             $tag \
-            /bin/sh -c 'python ./tests/performance/performance.py ${{ matrix.filepath }}'
+            /bin/sh -c 'python ./tests/openvds/performance.py ${{ matrix.filepath }}'
 
       - name: Print stderr
         if: always()
