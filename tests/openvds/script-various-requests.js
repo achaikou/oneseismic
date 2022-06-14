@@ -7,21 +7,21 @@ export const options = {
     ilineSlice: {
       executor: "constant-vus",
       vus: 3,
-      duration: "1m",
+      duration: "2m",
       exec: "randomIlineSliceRequest",
     },
 
     xlineSlice: {
       executor: "constant-vus",
       vus: 3,
-      duration: "1m",
+      duration: "2m",
       exec: "randomXlineSliceRequest",
     },
 
     timeSlice: {
       executor: "constant-vus",
       vus: 3,
-      duration: "1m",
+      duration: "2m",
       exec: "randomTimeSliceRequest",
     },
   },
