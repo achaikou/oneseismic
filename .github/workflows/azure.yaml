@@ -179,7 +179,7 @@ jobs:
     # STORAGE_ACCOUNT_KEY : key used to access storage
     name: Performance tests on Azure
     runs-on: ubuntu-latest
-    if: never()
+    if: github.event_name != 'workflow_dispatch' 
     environment: REALDEV
     needs: [performance_tests_setup]
 
