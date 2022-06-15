@@ -5,11 +5,14 @@ import json
 from urllib.parse import urlsplit
 import os
 import sys
+import logging
 
 api = Flask(__name__)
 
 def get_slice2(sliceType,sliceIndex,url,sas):
     connection ="Suffix="+sas
+    print("opening thing", file=sys.stderr, flush=True)
+    api.logger.info('opening from logger')
     vds = openvds.open(url, connection)
     layout = openvds.getLayout(vds)
     accessManager = openvds.VolumeDataAccessManager(vds)
@@ -19,13 +22,20 @@ def get_slice2(sliceType,sliceIndex,url,sas):
     
     max = tuple(sliceIndex + 1 if dim == sliceDimension else layout.getDimensionNumSamples(dim) for dim in range(6))
     req = accessManager.requestVolumeSubset(min, max,lod=0)
-    print("Data received", file=sys.stderr)
+    print("Data received", file=sys.stderr, flush=True)
+    api.logger.info('data received')
     height = max[0] if sliceDimension != 0 else max[1]
+    print("Height counted", file=sys.stderr, flush=True)
     width  = max[2] if sliceDimension != 2 else max[1]
+    print("Width counted", file=sys.stderr, flush=True)
+    res = req.waitForCompletion(60)
+    print("Request completed {}".format(res), file=sys.stderr, flush=True)
     if req.data is None:
+        print("No data", file=sys.stderr, flush=True)
         data = None
     else:
-        print("Reshaping", file=sys.stderr)
+        api.logger.info('reshaping')
+        print("Reshaping", file=sys.stderr, flush=True)
         data = req.data.reshape(width, height).transpose()
     openvds.close(vds)
     return data
@@ -42,6 +52,8 @@ def get_root():
 
 @api.route('/slice', methods=['GET'])
 def get_slice():
+    api.logger.info('slice received logger')
+    print("slice received print", file=sys.stderr, flush=True)
     sas = request.args.get('sas')
     guid = request.args.get('guid')
     index = int(request.args.get('index'))
@@ -52,7 +64,8 @@ def get_slice():
     url = "azureSAS://{}.blob.core.windows.net/{}".format(account_name, guid)
     
     data = get_slice2(type, index, url, sas)
-    print("So it's not fond of json?", file=sys.stderr)
+    api.logger.info('jsonize')
+    print("So it's not fond of json?", file=sys.stderr, flush=True)
     return json.dumps(data.tolist())
 if __name__ == '__main__':
     from waitress import serve
