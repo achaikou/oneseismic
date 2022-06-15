@@ -45,7 +45,7 @@ def generate_container_signature(
     Create container signature for azure request
     """
     if not expiry:
-        expiry = datetime.datetime.utcnow() + datetime.timedelta(seconds=300)
+        expiry = datetime.datetime.utcnow() + datetime.timedelta(seconds=600)
     if not permission:
         permission = blob.ContainerSasPermissions(
             read=True, list=True)

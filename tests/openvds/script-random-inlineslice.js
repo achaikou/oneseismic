@@ -13,7 +13,7 @@ export const options = {
 };
 
 export default function () {
-  sendConstantSliceRequest("inline");
+  sendRandomSliceRequest("inline");
 }
 
 export function handleSummary(data) {

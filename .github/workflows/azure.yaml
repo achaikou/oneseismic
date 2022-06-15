@@ -192,9 +192,8 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - filepath: "/tests/openvds/script-constant-slice.js"
-            medtime: 8000
-            maxtime: 16000
+          - filepath: "/tests/openvds/script-constant-timeslice.js"
+          - filepath: "/tests/openvds/script-random-inlineslic.js"
           - filepath: "/tests/openvds/script-various-requests.js"
 
     steps:

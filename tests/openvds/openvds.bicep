@@ -34,12 +34,12 @@ param containerAppsEnvironmentResourceName string
 
 var containerCPU = {
   // workaround: values are supposed to be floats, but bicep doesn't support it
-  prod: 1
-  test: 1
+  prod: 2
+  test: 2
 }
 var containerMemory = {
-  prod: '2Gi'
-  test: '2Gi'
+  prod: '4Gi'
+  test: '4Gi'
 }
 
 var minReplicas = {
@@ -48,8 +48,8 @@ var minReplicas = {
 }
 
 var maxReplicas = {
-  prod: 6
-  test: 6
+  prod: 10
+  test: 10
 }
 
 /* Note: explicit passing of resource objects is in development, so
@@ -101,7 +101,7 @@ resource flaskContainerApp 'Microsoft.App/containerApps@2022-01-01-preview' = {
       ]
     }
     template: {
-      revisionSuffix: '13th'
+      revisionSuffix: '15th'
 
       containers: [
         {
