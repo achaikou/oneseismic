@@ -48,8 +48,8 @@ var minReplicas = {
 }
 
 var maxReplicas = {
-  prod: 10
-  test: 10
+  prod: 6
+  test: 6
 }
 
 /* Note: explicit passing of resource objects is in development, so
@@ -101,7 +101,7 @@ resource flaskContainerApp 'Microsoft.App/containerApps@2022-01-01-preview' = {
       ]
     }
     template: {
-      revisionSuffix: '12th'
+      revisionSuffix: '13th'
 
       containers: [
         {
@@ -117,19 +117,19 @@ resource flaskContainerApp 'Microsoft.App/containerApps@2022-01-01-preview' = {
               value: storage.properties.primaryEndpoints.blob
             }
           ]
-          command: [
-            'python'
-          ]
-          args: [
-            '/tests/openvds/server.py'
-          ]
           // command: [
-          //   '/bin/sh'
+          //   'python'
           // ]
           // args: [
-          //   '-c'
-          //   'python /tests/openvds/server.py'
+          //   '/tests/openvds/server.py'
           // ]
+          command: [
+            '/bin/sh'
+          ]
+          args: [
+            '-c'
+            'python /tests/openvds/server.py'
+          ]
         }
       ]
       scale: {
