@@ -51,4 +51,6 @@ def get_slice():
     data = get_slice2(type, index, url, sas)
     return json.dumps(data.tolist())
 if __name__ == '__main__':
-    api.run(host="0.0.0.0", port=int("5000"), debug=True)
+    from waitress import serve
+    serve(api, host="0.0.0.0", port=5000)
+    #api.run(host="0.0.0.0", port=int("5000"), debug=True)
