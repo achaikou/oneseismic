@@ -94,9 +94,12 @@ jobs:
 
       - name: Set infrastructure parameters
         run: |
-          echo "ILINES=${github.event.inputs.ilines:-4}" >> $GITHUB_ENV
-          echo "XLINES=${github.event.inputs.xlines:-3}" >> $GITHUB_ENV
-          echo "SAMPLES=${github.event.inputs.samples:-1500}" >> $GITHUB_ENV
+          il=${{ github.event.inputs.ilines }}
+          xl=${{ github.event.inputs.xlines }}
+          sp=${{ github.event.inputs.samples }}
+          echo "ILINES=${$il:-4}" >> $GITHUB_ENV
+          echo "XLINES=${$xl:-3}" >> $GITHUB_ENV
+          echo "SAMPLES=${$sp:-1500}" >> $GITHUB_ENV
 
           echo "CONTAINER_REGISTRY=${{ secrets.SETUP_PREFIX }}0containerRegistry.azurecr.io" >> $GITHUB_ENV
           echo "CREATE_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-create-file-job" >> $GITHUB_ENV
