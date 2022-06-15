@@ -1,4 +1,4 @@
-import { sendConstantSliceRequest } from "./helpers/slice-helpers.js";
+import {  sendRandomSliceRequest } from "./helpers/slice-helpers.js";
 import { createSummary, thresholds } from "./helpers/report-helpers.js";
 
 export const options = {

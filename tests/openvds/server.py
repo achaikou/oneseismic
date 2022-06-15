@@ -18,11 +18,13 @@ def get_slice2(sliceType,sliceIndex,url,sas):
     
     max = tuple(sliceIndex + 1 if dim == sliceDimension else layout.getDimensionNumSamples(dim) for dim in range(6))
     req = accessManager.requestVolumeSubset(min, max,lod=0)
+    print("Data received")
     height = max[0] if sliceDimension != 0 else max[1]
     width  = max[2] if sliceDimension != 2 else max[1]
     if req.data is None:
         data = None
     else:
+        print("Reshaping")
         data = req.data.reshape(width, height).transpose()
     openvds.close(vds)
     return data
@@ -49,6 +51,7 @@ def get_slice():
     url = "azureSAS://{}.blob.core.windows.net/{}".format(account_name, guid)
     
     data = get_slice2(type, index, url, sas)
+    print("So it's not fond of json?")
     return json.dumps(data.tolist())
 if __name__ == '__main__':
     from waitress import serve
