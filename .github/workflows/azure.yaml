@@ -106,9 +106,12 @@ jobs:
           echo "UPLOAD_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-upload-file-job" >> $GITHUB_ENV
           echo "CLEANUP_CONTAINER_INSTANCE=${{ secrets.SETUP_PREFIX }}-cleanup-container-job" >> $GITHUB_ENV
           echo "RANDOM_VALUE"=$RANDOM >> $GITHUB_ENV
-          echo "FILENAME=${{ env.ILINES }}-x-${{ env.XLINES }}-x-${{ env.SAMPLES }}.segy" >> $GITHUB_ENV
           echo "CREATE_DEPLOYMENT_NAME=performanceTests-createFile" >> $GITHUB_ENV
           echo "SAVED_FILE_STORAGE=onespeedytest" >> $GITHUB_ENV
+
+      - name: Set dependent infrastructure parameters
+        run: |
+          echo "FILENAME=${{ env.ILINES }}-x-${{ env.XLINES }}-x-${{ env.SAMPLES }}.segy" >> $GITHUB_ENV
 
         # CI doesn't have enough space for large files. So create and upload them with Azure
       - name: Create segy file
