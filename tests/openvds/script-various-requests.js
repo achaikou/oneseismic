@@ -7,26 +7,26 @@ export const options = {
     ilineSlice: {
       executor: "constant-vus",
       vus: 3,
-      duration: "2m",
+      duration: "5m",
       exec: "randomIlineSliceRequest",
     },
 
     xlineSlice: {
       executor: "constant-vus",
       vus: 3,
-      duration: "2m",
+      duration: "5m",
       exec: "randomXlineSliceRequest",
     },
 
     timeSlice: {
       executor: "constant-vus",
       vus: 3,
-      duration: "2m",
+      duration: "5m",
       exec: "randomTimeSliceRequest",
     },
   },
 
-  thresholds: thresholds(5000, 15000),
+  thresholds: thresholds(30000, 60000),
 };
 
 export function randomIlineSliceRequest() {

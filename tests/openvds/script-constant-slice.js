@@ -6,7 +6,7 @@ export const options = {
     constantSlice: {
       executor: "constant-vus",
       vus: 1,
-      duration: "1m",
+      duration: "3m",
     },
   },
   thresholds: thresholds(3000, 12000),

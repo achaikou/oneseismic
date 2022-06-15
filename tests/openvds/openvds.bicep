@@ -43,13 +43,13 @@ var containerMemory = {
 }
 
 var minReplicas = {
-  prod: 1
-  test: 1
+  prod: 0
+  test: 0
 }
 
 var maxReplicas = {
-  prod: 5
-  test: 5
+  prod: 10
+  test: 10
 }
 
 /* Note: explicit passing of resource objects is in development, so
@@ -101,7 +101,7 @@ resource flaskContainerApp 'Microsoft.App/containerApps@2022-01-01-preview' = {
       ]
     }
     template: {
-      revisionSuffix: '11th'
+      revisionSuffix: '12th'
 
       containers: [
         {
@@ -116,6 +116,12 @@ resource flaskContainerApp 'Microsoft.App/containerApps@2022-01-01-preview' = {
               name: 'STORAGE_URL'
               value: storage.properties.primaryEndpoints.blob
             }
+          ]
+          command: [
+            'python'
+          ]
+          args: [
+            '/tests/openvds/server.py'
           ]
           // command: [
           //   '/bin/sh'
