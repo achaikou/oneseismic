@@ -128,20 +128,20 @@ jobs:
         run: |
           az container logs --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.CREATE_CONTAINER_INSTANCE }}
 
-      - name: Upload file
-        uses: azure/arm-deploy@v1
-        with:
-          deploymentName: performanceTests-uploadFile
-          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
-          template: tests/performance/upload.bicep
-          parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }} segyStorageResourceName=${{ env.SAVED_FILE_STORAGE }}
+      # - name: Upload file
+      #   uses: azure/arm-deploy@v1
+      #   with:
+      #     deploymentName: performanceTests-uploadFile
+      #     resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
+      #     template: tests/performance/upload.bicep
+      #     parameters: setupPrefix=${{ secrets.SETUP_PREFIX }} random=${{ env.RANDOM_VALUE }} fileName=${{ env.FILENAME }} segyStorageResourceName=${{ env.SAVED_FILE_STORAGE }}
 
-      - name: Wait until file is uploaded
-        timeout-minutes: 200
-        uses: './.github/actions/wait_for_container_termination'
-        with:
-          container_instance_name: ${{ env.UPLOAD_CONTAINER_INSTANCE }}
-          resource_group: ${{ secrets.RESOURCE_GROUP }}
+      # - name: Wait until file is uploaded
+      #   timeout-minutes: 200
+      #   uses: './.github/actions/wait_for_container_termination'
+      #   with:
+      #     container_instance_name: ${{ env.UPLOAD_CONTAINER_INSTANCE }}
+      #     resource_group: ${{ secrets.RESOURCE_GROUP }}
 
 # do something here - if guid is not guid, too much stuff fails.
       - name: Print upload logs
@@ -179,7 +179,7 @@ jobs:
     # STORAGE_ACCOUNT_KEY : key used to access storage
     name: Performance tests on Azure
     runs-on: ubuntu-latest
-    if: always()
+    if: never()
     environment: REALDEV
     needs: [performance_tests_setup]
 
