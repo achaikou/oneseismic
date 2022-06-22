@@ -1,0 +1,41 @@
+From 7d2c572a656944b1fc92c72d01145b6d7d6425b9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Erlend=20H=C3=A5rstad?= <erha@equinor.com>
+Date: Thu, 2 Jun 2022 08:02:22 +0000
+Subject: [PATCH] Append azure-sdk-for-cpp so's to correct list
+
+---
+ CMake/BuildAzureSdkForCpp.cmake | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/CMake/BuildAzureSdkForCpp.cmake b/CMake/BuildAzureSdkForCpp.cmake
+index e68c6048..77f511b8 100644
+--- a/CMake/BuildAzureSdkForCpp.cmake
++++ b/CMake/BuildAzureSdkForCpp.cmake
+@@ -21,15 +21,15 @@ function(BuildAzureSdkForCpp)
+     LIST(APPEND AZURE_SDK_FOR_CPP_DLLS_LIST "bin/azure-template.dll")
+   elseif (APPLE)
+   else()
+-    LIST(APPEND AZURE_SDK_FOR_CPP_LIBS_LIST "lib${LIBSUFFIX}/libazure-core.so")
+-    LIST(APPEND AZURE_SDK_FOR_CPP_LIBS_LIST "lib${LIBSUFFIX}/libazure-storage-common.so")
+-    LIST(APPEND AZURE_SDK_FOR_CPP_LIBS_LIST "lib${LIBSUFFIX}/libazure-template.so")
+-    LIST(APPEND AZURE_SDK_FOR_CPP_LIBS_LIST "lib${LIBSUFFIX}/libazure-identity.so")
+-    LIST(APPEND AZURE_SDK_FOR_CPP_LIBS_LIST "lib${LIBSUFFIX}/libazure-security-keyvault-common.so")
+-    LIST(APPEND AZURE_SDK_FOR_CPP_LIBS_LIST "lib${LIBSUFFIX}/libazure-security-keyvault-keys.so")
+-    LIST(APPEND AZURE_SDK_FOR_CPP_LIBS_LIST "lib${LIBSUFFIX}/libazure-storage-blobs.so")
+-    LIST(APPEND AZURE_SDK_FOR_CPP_LIBS_LIST "lib${LIBSUFFIX}/libazure-storage-files-datalake.so")
+-    LIST(APPEND AZURE_SDK_FOR_CPP_LIBS_LIST "lib${LIBSUFFIX}/libazure-storage-files-shares.so")
++    LIST(APPEND AZURE_SDK_FOR_CPP_DLLS_LIST "lib${LIBSUFFIX}/libazure-core.so")
++    LIST(APPEND AZURE_SDK_FOR_CPP_DLLS_LIST "lib${LIBSUFFIX}/libazure-storage-common.so")
++    LIST(APPEND AZURE_SDK_FOR_CPP_DLLS_LIST "lib${LIBSUFFIX}/libazure-template.so")
++    LIST(APPEND AZURE_SDK_FOR_CPP_DLLS_LIST "lib${LIBSUFFIX}/libazure-identity.so")
++    LIST(APPEND AZURE_SDK_FOR_CPP_DLLS_LIST "lib${LIBSUFFIX}/libazure-security-keyvault-common.so")
++    LIST(APPEND AZURE_SDK_FOR_CPP_DLLS_LIST "lib${LIBSUFFIX}/libazure-security-keyvault-keys.so")
++    LIST(APPEND AZURE_SDK_FOR_CPP_DLLS_LIST "lib${LIBSUFFIX}/libazure-storage-blobs.so")
++    LIST(APPEND AZURE_SDK_FOR_CPP_DLLS_LIST "lib${LIBSUFFIX}/libazure-storage-files-datalake.so")
++    LIST(APPEND AZURE_SDK_FOR_CPP_DLLS_LIST "lib${LIBSUFFIX}/libazure-storage-files-shares.so")
+   endif()
+   if (BUILD_LIBXML)
+     set(DEPENDENCIES libxml2)
+-- 
+2.17.1
+

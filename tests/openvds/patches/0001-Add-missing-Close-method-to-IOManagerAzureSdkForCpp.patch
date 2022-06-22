@@ -1,0 +1,24 @@
+From 1fe39ced380ad5d358a24235221836bbf3aee324 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Erlend=20H=C3=A5rstad?= <erha@equinor.com>
+Date: Thu, 2 Jun 2022 08:03:49 +0000
+Subject: [PATCH] Add missing Close method to IOManagerAzureSdkForCpp
+
+---
+ src/OpenVDS/IO/IOManagerAzureSdkForCpp.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/OpenVDS/IO/IOManagerAzureSdkForCpp.h b/src/OpenVDS/IO/IOManagerAzureSdkForCpp.h
+index 3483f46e..bffd36e1 100644
+--- a/src/OpenVDS/IO/IOManagerAzureSdkForCpp.h
++++ b/src/OpenVDS/IO/IOManagerAzureSdkForCpp.h
+@@ -43,6 +43,7 @@ namespace OpenVDS
+     std::shared_ptr<Request> ReadObjectInfo(const std::string& objectName, std::shared_ptr<TransferDownloadHandler> handler) override;
+     std::shared_ptr<Request> ReadObject(const std::string& requestName, std::shared_ptr<TransferDownloadHandler> handler, const IORange& range = IORange()) override;
+     std::shared_ptr<Request> WriteObject(const std::string& requestName, const std::string& contentDispostionFilename, const std::string& contentType, const std::vector<std::pair<std::string, std::string>>& metadataHeader, std::shared_ptr<std::vector<uint8_t>> data, std::function<void(const Request& request, const Error& error)> completedCallback = nullptr) override;
++    bool Close(Error &error) override { return true; }
+   private:
+     ThreadPool m_threadPool;
+     std::string m_containerStr;
+-- 
+2.17.1
+
