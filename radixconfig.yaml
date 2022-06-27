@@ -12,7 +12,7 @@ spec:
         from: radix
   components:
     - name: flask
-      dockerfileName: tests.openvds.Dockerfile
+      src: tests/openvds
       ports:
         - name: http
           port: 5000
