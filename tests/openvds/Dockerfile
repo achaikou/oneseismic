@@ -17,4 +17,5 @@ RUN python -m pip install -r /tests/openvds/requirements-dev.txt
 ENV UPLOAD_WITH_PYTHON python
 ENV PYTHONPATH "${PYTHONPATH}:/tests"
 
-#ENTRYPOINT ["python", "/tests/openvds/server.py"]
+# on when used for run, off when used for tests
+ENTRYPOINT ["python", "/tests/openvds/server.py"]
