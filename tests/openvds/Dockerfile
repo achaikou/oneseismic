@@ -17,9 +17,9 @@ RUN python -m pip install -r /tests/openvds/requirements-dev.txt
 ENV UPLOAD_WITH_PYTHON python
 ENV PYTHONPATH "${PYTHONPATH}:/tests"
 
-# #RUN groupadd -r user && useradd -r -g user user
-# USER 999
+#RUN groupadd -r user && useradd -r -g user user
+USER 999
 
-# # on when used for run, off when used for tests
-# ENTRYPOINT ["python", "/tests/openvds/server.py"]
+# on when used for run, off when used for tests
+ENTRYPOINT ["python", "/tests/openvds/server.py"]
 

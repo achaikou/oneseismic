@@ -3,9 +3,6 @@ kind: RadixApplication
 metadata:
   name: oneseismictest
 spec:
-  build:
-    secrets:
-      - STORAGE_URL
   environments:
     - name: investigation
       build:
@@ -13,6 +10,8 @@ spec:
   components:
     - name: flask
       dockerfileName: tests/openvds/Dockerfile
+      secrets:
+        - STORAGE_URL
       ports:
         - name: http
           port: 5000
