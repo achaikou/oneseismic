@@ -19,3 +19,4 @@ ENV PYTHONPATH "${PYTHONPATH}:/tests"
 
 # on when used for run, off when used for tests
 ENTRYPOINT ["python", "/tests/openvds/server.py"]
+
