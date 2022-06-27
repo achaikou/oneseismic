@@ -19,6 +19,7 @@ spec:
       publicPort: http
       environmentConfig:
         - environment: investigation
+          monitoring: false
           resources:
             requests:
               memory: "256Mi"
