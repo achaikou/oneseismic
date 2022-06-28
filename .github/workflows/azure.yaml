@@ -191,11 +191,15 @@ jobs:
       fail-fast: false
       max-parallel: 1
       matrix:
-        include:
-          - filepath: "/tests/openvds/script-constant-timeslice.js"
-          - filepath: "/tests/openvds/script-random-inlineslice.js"
-          - filepath: "/tests/openvds/script-various-requests.js"
-
+        filepath: ["/tests/openvds/script-constant-timeslice.js", "/tests/openvds/script-random-inlineslice.js", "/tests/openvds/script-various-requests.js"]
+        server: [RADIX_SERVER_URL, CONTAINER_APPS_SERVER_URL]
+      # matrix:
+      #   include:
+      #     - filepath: "/tests/openvds/script-constant-timeslice.js"
+      #     - filepath: "/tests/openvds/script-random-inlineslice.js"
+      #     - filepath: "/tests/openvds/script-various-requests.js"
+    env:
+      SERVER_URL: ${{ secrets[matrix.server] }}
     steps:
       - uses: actions/checkout@v2
 
@@ -206,7 +210,6 @@ jobs:
           echo "STORAGE_URL=${{ secrets.STORAGE_URL }}" >> $GITHUB_ENV
           echo "GUID=${{ github.event.inputs.guid }}" >> $GITHUB_ENV
           echo "CONTAINER=${{ github.event.inputs.container }}" >> $GITHUB_ENV
-          echo "SERVER_URL=${{ secrets.SERVER_URL }}" >> $GITHUB_ENV
 
       - name: Set missing parameters
         if: github.event_name != 'workflow_dispatch' || github.event.inputs.upload_cube == 'true'
